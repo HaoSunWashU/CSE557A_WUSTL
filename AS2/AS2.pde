@@ -30,6 +30,28 @@ float[] directions;                  //direction angle for each part
 float[] xPosPie;
 float[] yPosPie;
 
+//position information for three transition buttons
+int x_1 = 700;
+int y_1 = 50;
+int x_2 = 870;
+int y_2 = 50;
+int x_3 = 1040;
+int y_3 = 50;
+
+//button size
+int width_button = 120;
+int height_button = 50;
+
+//button selection rect size
+int width_selection = 130;
+int height_selection = 60;
+
+//button color and selection rect color
+// 1. 52,109,241
+// 2. 226, 44, 41
+// 3. 45, 156, 65
+// selected 249,176,12
+
 //Colors of pie
 
 //Current chart statement
@@ -91,8 +113,70 @@ void draw(){
   }
   
   //draw three buttons : 1. Bar Chart; 2. Line Chart; 3. Pie Chart.
+  mouseOnWhichButton(); //detect mouse position, if mouse is hovering over button change color
+  //draw selection rect for buttons based on current chart mode
+  stroke(249,176,12);  //selection rect
+  strokeWeight(8);
+  fill(249,176,12);
+  switch(currentChartMode){
+    case 0:
+      rect(x_1, y_1, width_selection, height_selection, 8);
+      break;
+    case 1:
+      rect(x_2, y_2, width_selection, height_selection, 8);
+      break;
+    case 2:
+      rect(x_3, y_3, width_selection, height_selection, 8);
+      break;
+  }
+  stroke(20);
+  strokeWeight(2);
+  
+  switch(whichButton){
+    case 0: //mouse is not hovering over any button, just check chart mode to determine the color of button
+      fill(52,109,241);//first button
+      rect(x_1, y_1, width_button, height_button, 8);
+      fill(226,44,41);
+      rect(x_2, y_2, width_button, height_button, 8);
+      fill(45,156,65);
+      rect(x_3, y_3, width_button, height_button, 8);
+      break;
+    case 1:
+      fill(180);
+      rect(x_1, y_1, width_button, height_button, 8);
+      fill(226,44,41);
+      rect(x_2, y_2, width_button, height_button, 8);
+      fill(45,156,65);
+      rect(x_3, y_3, width_button, height_button, 8);
+      break;
+    case 2:
+      fill(52,109,241);//first button
+      rect(x_1, y_1, width_button, height_button, 8);
+      fill(180);
+      rect(x_2, y_2, width_button, height_button, 8);
+      fill(45,156,65);
+      rect(x_3, y_3, width_button, height_button, 8);
+      break;
+    case 3:
+      fill(52,109,241);//first button
+      rect(x_1, y_1, width_button, height_button, 8);
+      fill(226,44,41);
+      rect(x_2, y_2, width_button, height_button, 8);
+      fill(180);
+      rect(x_3, y_3, width_button, height_button, 8);
+      break;
+    
+  }
+  //draw text on buttons
+  fill(240);
+  text("Bar chart", x_1, y_1+8);
+  text("Line chart", x_2, y_2+8);
+  text("Pie chart", x_3, y_3+8);
+  //toggleAnimationPhase();
   
   
+  //debug
+  //println(whichButton);
 }
 
 void loadData(){
@@ -144,18 +228,46 @@ void updatePositionInformationForBar(){
     directions[i] = 360.0 * dataNums[i] / dataSum; //computer direction angle for pie chart
   }
 }
+
+//detect mouse position
 void mouseOnWhichButton(){
+  whichButton = 0;
+  if(mouseX > (x_1 - width_button/2) && mouseX < (x_1 + width_button/2)
+  && mouseY > (y_1 - height_button/2) && mouseY < (y_1 + height_button/2)){
+    whichButton = 1;
+  }
   
+  if(mouseX > (x_2 - width_button/2) && mouseX < (x_2 + width_button/2)
+  && mouseY > (y_2 - height_button/2) && mouseY < (y_2 + height_button/2)){
+    whichButton = 2;
+  }
+  
+  if(mouseX > (x_3 - width_button/2) && mouseX < (x_3 + width_button/2)
+  && mouseY > (y_3 - height_button/2) && mouseY < (y_3 + height_button/2)){
+    whichButton = 3;
+  }
 }
 
 void mousePressed(){
   mouseOnWhichButton();
   switch(whichButton){
     case 0: break;
-    case 1: break;
-    case 2: break;
-    case 3: break;
+    case 1: 
+      
+      break;
+    case 2: 
+      
+      break;
+    case 3: 
+      
+      break;
   }
+}
+
+//drawLabels for bar chart and line chart
+void drawLabels(){
   
-  
+}
+
+void drawBar(float xPos, float yPos, float barHeight){
 }
