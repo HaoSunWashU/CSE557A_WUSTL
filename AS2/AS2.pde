@@ -50,9 +50,9 @@ float width_selection;
 float height_selection;
 
 //button color and selection rect color
-// 1. 52,109,241
-// 2. 226, 44, 41
-// 3. 45, 156, 65
+// 1. 52,109,241     blue
+// 2. 226, 44, 41    red
+// 3. 45, 156, 65    green
 // selected 249,176,12
 
 //Colors of pie
@@ -83,6 +83,10 @@ void setup(){
   loadData();                      
   chartTitle = "Hao's Chart: " + titles[0] + " measured by " + titles[1];
   fontInfo = createFont("Georgia", 16, true);
+  whichBarIsSelected = new boolean[count];
+  for(int i = 0; i < count; i++){
+    whichBarIsSelected[i] = false;
+  }
 }
 
 void draw(){
@@ -217,10 +221,20 @@ void draw(){
   
   switch(currentState){
     case 0:
-      if(!lineToBar && !pieToBar){
+      if(!lineToBar && !pieToBar){  //static situation of Bar Chart
         //draw bar
+        for(int i = 0; i < count; i++){
+          drawBar(xPos[i], yPos[i], barWidth, heights[i], i);
+        }
         
-        
+        //When mouse hovering over a bar, display the information of that bar
+        for (int i = 0; i < count; i++) {
+          if (whichBarIsSelected[i] == true) {
+            fill(0);
+            textFont(fontInfo, 16* textPercentage);
+            text(dataNames[i] + " : " + dataNums[i], mouseX, mouseY, 1000);
+          }
+        }
       }else if(lineToBar){
       
       }else if(pieToBar){
@@ -352,7 +366,9 @@ void drawLabels_Y(){
     float textSize = 12 * textPercentage;
     textFont(fontInfo, textSize);
     text(value, xPos_value, yPos_value);
+    stroke(160);
     line(xCenter - widthSize/2.0, yPos_value, xCenter + widthSize/2.0, yPos_value);
+    stroke(0);
   }
   //for(int i = 0; i < 3; i++){
   //  //line(0.1*width, yPos, (0.1*width + (0.75*width)), yPos);
@@ -375,7 +391,7 @@ void drawLabels_X(){
 }
 
 //draw a bar and detect whether the mouse is on this bar, use whichBarIsSelected[] to record
-void drawBar(float xPos, float yPos, float barHeight){ //52,109,241 blue 249, 176, 12 yellow
+void drawBar(float xPos, float yPos, float barWidth, float barHeight, int i){ //52,109,241 blue 249, 176, 12 yellow
   //mouse on this bar
   if(mouseX > xPos && mouseX < xPos + barWidth &&
   mouseY > yPos && mouseY < yPos + barHeight){
@@ -383,10 +399,19 @@ void drawBar(float xPos, float yPos, float barHeight){ //52,109,241 blue 249, 17
     strokeWeight(4);
     fill(249,176,12);
     rectMode(CORNER);
-    rect(xPos, yPos, barWidth, barHeight);
+    rect(xPos, yPos, barWidth, barHeight, 2);
+    whichBarIsSelected[i] = true;
+    stroke(0);
+    strokeWeight(2);
   }
   else{
     rectMode(CORNER);
-    rect(xPos, yPos, barWidth, barHeight);
+    fill(52,109,241);
+    stroke(220);
+    strokeWeight(2);
+    rect(xPos, yPos, barWidth, barHeight, 2);
+    whichBarIsSelected[i] = false;
+    stroke(0);
+    
   }
 }
