@@ -17,7 +17,7 @@ String[] titles;                    //titles of first row in .csv
 float maxValue = 0.0;                 //store the max value
 float maxValueOfBar = 0.0;
 float dataSum = 0.0;                //store the sum of date num
-boolean[] whichBarIsSelected;               //indicate which data is selected
+boolean[] isSelected;               //indicate which data is selected
 String chartTitle;       //title of chart
 
 //position informaiton for bar chart
@@ -27,6 +27,8 @@ float[] xPos;
 float[] yPos;
 
 //position information for line chart
+float xPosPrePoint = 0.0; //store the previous point of current point, in order to connect a line
+float yPosPrePoint = 0.0;
 
 //position information for pie chart
 float[] directions;                  //direction angle for each part
@@ -64,6 +66,7 @@ boolean line = false;
 //Chart transition statement
 int currentState = 0;                //current chart mode 0 : bar chart; 1 : line chart; 2: pie chart
 int whichButton = 0;                 //indicate which button the mouse is on. 0 for nothing, 1,2,3 for three buttons
+int ticks = 0;                       //control the process of transition
 
 boolean barToLine = false;           //The following variables are used to judge chart transition action
 boolean barToPie = false;
@@ -83,12 +86,13 @@ void setup(){
   loadData();                      
   chartTitle = "Hao's Chart: " + titles[0] + " measured by " + titles[1];
   fontInfo = createFont("Georgia", 16, true);
-  whichBarIsSelected = new boolean[count];
+  isSelected = new boolean[count];
   for(int i = 0; i < count; i++){
-    whichBarIsSelected[i] = false;
+    isSelected[i] = false;
   }
 }
 
+//&&&&& main drawing funtion &&&&&&//
 void draw(){
   //refresh the canvas
   clear();
@@ -220,33 +224,63 @@ void draw(){
   }
   
   switch(currentState){
-    case 0:
+    case 0:  //(1) 1. bar chart; 2. line to bar; 3. pie to bar;
       if(!lineToBar && !pieToBar){  //static situation of Bar Chart
-        //draw bar
+        //draw Bar
         for(int i = 0; i < count; i++){
           drawBar(xPos[i], yPos[i], barWidth, heights[i], i);
         }
-        
         //When mouse hovering over a bar, display the information of that bar
         for (int i = 0; i < count; i++) {
-          if (whichBarIsSelected[i] == true) {
+          if (isSelected[i] == true) {
             fill(0);
-            textFont(fontInfo, 16* textPercentage);
-            text(dataNames[i] + " : " + dataNums[i], mouseX, mouseY, 1000);
+            textFont(fontInfo, 20 * textPercentage);
+            text(dataNames[i] + " : " + dataNums[i], mouseX, mouseY);
           }
         }
-      }else if(lineToBar){
+      }else if(lineToBar){ //transition from Line chart to Bar chart
       
-      }else if(pieToBar){
+      }else if(pieToBar){ //transition from Pie chart to Bar chart
       
       }else{}
-    case 1:
-    
-    case 2:
-  
+      break;
+    case 1:  //(2) 4. line chart; 5. bar to line; 6. pie to line;
+      if(!barToLine && !pieToLine){ //draw static Line
+        for(int i = 0; i < count; i++){
+          drawLine(xPos[i], yPos[i], i);
+        }
+        
+        for(int i = 0; i < count; i++){
+          if(isSelected[i] == true){
+            fill(0);
+            textFont(fontInfo, 20 * textPercentage);
+            text(dataNames[i] + " : " + dataNums[i], mouseX, mouseY); 
+          }
+        }
+        
+      }else if(barToLine){ //transition from Bar chart to Line chart
+        
+        
+      }else if(pieToLine){ //transition from Pie chart to Line chart
+        
+      
+      }else{}
+      break;
+    case 2:  //(3) 7. pie chart; 8. bar to pie; 9. line to pie;
+      if(!barToPie && !lineToPie){ //draw Pie chart
+      
+      
+      }else if(barToPie){
+      
+      }else if(lineToPie){
+      
+      }else{}
+      break;
   }
 }
 
+
+//***** Load data from .csv *****//
 void loadData(){
   //load first row of the data.csv
   String[] data = loadStrings(fileName);
@@ -280,6 +314,7 @@ void loadData(){
   println("The sum is: " + dataSum);
 }
 
+//***** update Position information based data loaded from .csv ******//
 void updatePositionInformationForBar(){
   heights = new float[count];
   xPos = new float[count];
@@ -298,7 +333,23 @@ void updatePositionInformationForBar(){
   maxValueOfBar = maxValue / 0.8; 
 }
 
-//detect mouse position
+//^^^^^ transition control ^^^^^//  180 ticks for drawing transition
+void ticksHandle(){
+  if(barToLine || barToPie || lineToBar || lineToPie || pieToBar || pieToLine){
+    ticks++;
+    if(ticks >= 180){ //transition finish, all false and ticks back to 0
+      barToLine = false;
+      barToPie = false;
+      lineToBar = false;
+      lineToPie = false;
+      pieToBar = false;
+      pieToLine = false; 
+    }
+  }
+}
+
+
+//&&&&&  Mouse detection &&&&&//
 void mouseOnWhichButton(){
   whichButton = 0;
   if(mouseX > (x_1 - width_button/2) && mouseX < (x_1 + width_button/2)
@@ -355,6 +406,8 @@ void mousePressed(){
   }
 }
 
+//********** drawing functions *********//
+
 //drawLabels for bar chart and line chart and transition of line-to-bar and bar-to-line 
 void drawLabels_Y(){
   //draw five values on Y axis
@@ -390,17 +443,16 @@ void drawLabels_X(){
   }
 }
 
-//draw a bar and detect whether the mouse is on this bar, use whichBarIsSelected[] to record
+//draw a Bar and detect whether the mouse is on this bar, use isSelected[] to record
 void drawBar(float xPos, float yPos, float barWidth, float barHeight, int i){ //52,109,241 blue 249, 176, 12 yellow
   //mouse on this bar
-  if(mouseX > xPos && mouseX < xPos + barWidth &&
-  mouseY > yPos && mouseY < yPos + barHeight){
+  if(mouseX > xPos && mouseX < xPos + barWidth && mouseY > yPos && mouseY < yPos + barHeight){
     stroke(249,176,12);  //selection rect
     strokeWeight(4);
     fill(249,176,12);
     rectMode(CORNER);
     rect(xPos, yPos, barWidth, barHeight, 2);
-    whichBarIsSelected[i] = true;
+    isSelected[i] = true;
     stroke(0);
     strokeWeight(2);
   }
@@ -410,8 +462,69 @@ void drawBar(float xPos, float yPos, float barWidth, float barHeight, int i){ //
     stroke(220);
     strokeWeight(2);
     rect(xPos, yPos, barWidth, barHeight, 2);
-    whichBarIsSelected[i] = false;
+    isSelected[i] = false;
     stroke(0);
-    
   }
+}
+
+//draw a Line graph and detect whether the mouse is on the Point, use  isSelected[] to record
+void drawLine(float xPos, float yPos, int i){    //2. 226, 44, 41    red
+  float percentage = width/1200.0; //calculate the scale percentage for point radius
+  float pointRadius = 14.0 * percentage;
+  
+  //mouse hover over the point
+  if(pow((mouseX - xPos),2) + pow((mouseY - yPos),2) < pow(pointRadius,2)){
+    stroke(249,176,12);  //selection rect
+    strokeWeight(18);
+    fill(249,176,12);
+    ellipse(xPos, yPos, pointRadius, pointRadius);
+    isSelected[i] = true;
+    stroke(0);
+    strokeWeight(2);
+  }else{
+    stroke(226,44,41);
+    fill(226,44,41);
+    ellipse(xPos, yPos, pointRadius, pointRadius);
+    isSelected[i] = false;
+    stroke(0);
+  }
+  
+  if(i > 0){ //draw a line from previous point from second point
+    stroke(226,44,41);
+    line(xPosPrePoint, yPosPrePoint, xPos, yPos);
+    stroke(0);
+  }
+  
+  xPosPrePoint = xPos;
+  yPosPrePoint = yPos;
+}
+
+void drawPie(){
+
+}
+
+//%%%%%  transition   %%%%%//
+void transition_Bar_to_Line(){  //there are 3 steps: 1. Bar to Line; 2. Line to Point; 3. Connect the Points
+//Color is also changing, from // (52,109,241) blue to  (226, 44, 41) red
+
+}
+
+void transition_Line_to_Bar(){
+
+}
+
+void transition_Bar_to_Pie(){
+
+}
+
+void transition_Pie_to_Bar(){
+
+}
+
+void transition_Line_to_Pie(){
+
+}
+
+void transition_Pie_to_Line(){
+
 }
