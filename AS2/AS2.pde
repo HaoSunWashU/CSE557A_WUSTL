@@ -14,8 +14,8 @@ int count;                          //store the num of data
 String[] dataNames;                 //name of first column
 float[] dataNums;                   //populations of different distributions
 String[] titles;                    //titles of first row in .csv
-float maxNum = 0.0;                 //store the max population
-float maxNumOfBar = 0.0;
+float maxValue = 0.0;                 //store the max value
+float maxValueOfBar = 0.0;
 float dataSum = 0.0;                //store the sum of date num
 boolean[] whichBarIsSelected;               //indicate which data is selected
 String chartTitle;       //title of chart
@@ -64,12 +64,13 @@ boolean line = false;
 //Chart transition statement
 int currentState = 0;                //current chart mode 0 : bar chart; 1 : line chart; 2: pie chart
 int whichButton = 0;                 //indicate which button the mouse is on. 0 for nothing, 1,2,3 for three buttons
+
 boolean barToLine = false;           //The following variables are used to judge chart transition action
 boolean barToPie = false;
 boolean lineToBar = false;
 boolean lineToPie = false;
 boolean pieToBar = false;
-boolean pieToLine = false;
+boolean pieToLine = false;          //only one will be true or all will be false
   
 //initialize canvas
 void setup(){
@@ -104,14 +105,14 @@ void draw(){
   fill(250);
   textAlign(CENTER);
   text(chartTitle, 0.3*width, 0.05*height);
-  
+  textFont(fontInfo, 20 * textPercentage);
   //if current chart mode is bar chart or line chart, draw the following text
   if(currentState!=2){
     pushMatrix(); //push current transformation setting into matrix for later use
     //modify transform
-    translate(0.025* width, 0.5 * height);
+    translate(0.018* width, 0.5 * height);
     rotate(3 * PI / 2);
-    textFont(fontInfo, 20 * textPercentage);
+    //textFont(fontInfo, 20 * textPercentage);
     text(titles[1], 0, 0);
     popMatrix();  //pop former transform
     text(titles[0], 0.5*width, 0.975*height);
@@ -202,31 +203,33 @@ void draw(){
   
   updatePositionInformationForBar(); //update position information for Bar Chart
   //The following is the main part of this draw() function: draw bar chart, line chart and pie chart
-  //There are 9 situations: 1. bar chart; 2. bar to line; 3. bar to pie;
-  //                        4. line chart; 5. line to bar; 6. line to pie;
-  //                        7. pie chart; 8. pie to bar; 9. pie to line;
+  //There are 9 situations: (1) 1. bar chart; 2. line to bar; 3. pie to bar;
+  //                        (2) 4. line chart; 5. bar to line; 6. pie to line;
+  //                        (3) 7. pie chart; 8. bar to pie; 9. line to pie;
   //among those situations, there are 4 special one 1. 2. 4. 5.
   //because 1. 2. 4. 5. must have labels and horizontal lines for indication
-  
-  if(barToPie){
-  
-  }
-  
-  if(pieToBar){
-  
-  }
-  
-  if(lineToPie){
-  
-  }
-  
-  if(pieToLine){
-  
-  }
-  
   //situations 1. 2. 4. 5. draw labels for x-axis and y-axis
-  if(currentState!=2 && !barToPie && !lineToPie){
+  if((currentState==0 || currentState==1) && !barToPie && !lineToPie){
+    //draw labels
+    drawLabels_Y();
+    drawLabels_X();
+  }
+  
+  switch(currentState){
+    case 0:
+      if(!lineToBar && !pieToBar){
+        //draw bar
+        
+        
+      }else if(lineToBar){
+      
+      }else if(pieToBar){
+      
+      }else{}
+    case 1:
     
+    case 2:
+  
   }
 }
 
@@ -251,15 +254,15 @@ void loadData(){
     dataNums[rowCount] = num;
     rowCount++;
     dataSum += num;
-    if(num>maxNum){
-      maxNum = num;
+    if(num>maxValue){
+      maxValue = num;
     }
   }
   //debug
   println("num of rows: " + count);
   println("title: " + titles[0] + ", " + titles[1]);
   println("First row of data: " + dataNames[0] + ", " + dataNums[0]);
-  println("The max num is: " + maxNum);
+  println("The max num is: " + maxValue);
   println("The sum is: " + dataSum);
 }
 
@@ -271,14 +274,14 @@ void updatePositionInformationForBar(){
   barWidth = ((5.0/6.0)*width)/(2.0 * count + 1); //width of each bar
   for(int i = 0; i < count; i++){
     //ratioToMaxNum is designed to adjust the height of each bar
-    float ratioToMaxNum = dataNums[i] / maxNum;
+    float ratioToMaxNum = dataNums[i] / maxValue;
     heights[i] = 0.8 * heightSize * ratioToMaxNum; //80% zoom: the max one 
     //(xCenter - widthSize/2) is the left margin
     xPos[i] = (xCenter - widthSize/2) + barWidth + (2 * i * barWidth);
     yPos[i] = (yCenter - heightSize/2) + heightSize - heights[i];
     directions[i] = 360.0 * dataNums[i] / dataSum; //computer direction angle for pie chart
   }
-  maxNumOfBar = maxNum / 0.8; 
+  maxValueOfBar = maxValue / 0.8; 
 }
 
 //detect mouse position
@@ -306,22 +309,69 @@ void mousePressed(){
   if(!barToLine && !barToPie && !lineToBar && !lineToPie && !pieToBar && !pieToLine){
     switch(whichButton){
     case 0: break;
-    case 1: 
-      
+    case 1:   //Bar chart button
+      //if (currentState == 1) {
+      //  lineToBar = true;
+      //}
+      //if (currentState == 2) {
+      //  pieToBar = true;
+      //}
+      currentState = 0;
       break;
-    case 2: 
-      
+    case 2:   //Line chart button
+      //if (currentState == 0) {
+      //  barToLine = true;
+      //}
+      //if (currentState == 2) {
+      //  pieToLine = true;
+      //}
+      currentState = 1;
       break;
-    case 3: 
-      
+    case 3:   //Pie chart button
+      //if (currentState == 0) {
+      //  barToPie = true;
+      //}
+      //if (currentState == 1) {
+      //  lineToPie = true;
+      //}
+      currentState = 2;
       break;
     }
+    println(currentState);
   }
 }
 
 //drawLabels for bar chart and line chart and transition of line-to-bar and bar-to-line 
-void drawLabels(){
-  
+void drawLabels_Y(){
+  //draw five values on Y axis
+  for(int i = 0; i < 5; i++){
+    float value = (i/4.0) * maxValueOfBar;
+    float xPos_value = 0.055 * width;
+    float yPos_value = (yCenter - heightSize/2) + (4-i)/4.0 * heightSize;
+    float textPercentage = (width/1200.0 + height/800.0)/2.0;
+    float textSize = 12 * textPercentage;
+    textFont(fontInfo, textSize);
+    text(value, xPos_value, yPos_value);
+    line(xCenter - widthSize/2.0, yPos_value, xCenter + widthSize/2.0, yPos_value);
+  }
+  //for(int i = 0; i < 3; i++){
+  //  //line(0.1*width, yPos, (0.1*width + (0.75*width)), yPos);
+  //}
+}
+
+void drawLabels_X(){
+  for(int i = 0; i < count; i++){
+    //Draw labels on x axis
+    float textPercentage = (width/1200.0 + height/800.0)/2.0;
+    float textSize = 10 * textPercentage;
+    textFont(fontInfo, textSize);
+    fill(250);
+    pushMatrix();
+    translate(xPos[i], 0.92* height);
+    rotate(7.0*PI/4.0);
+    text(dataNames[i], 0.0, 0.0);
+    popMatrix();
+  }
 }
 
 //draw a bar and detect whether the mouse is on this bar, use whichBarIsSelected[] to record
