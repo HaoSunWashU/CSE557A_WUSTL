@@ -21,7 +21,7 @@ boolean[] isSelected;               //indicate which data is selected
 String chartTitle;       //title of chart
 
 //position informaiton for bar chart
-float[] heights;
+float[] barHeights;
 float barWidth;
 float[] xPos;
 float[] yPos;
@@ -228,7 +228,7 @@ void draw(){
       if(!lineToBar && !pieToBar){  //static situation of Bar Chart
         //draw Bar
         for(int i = 0; i < count; i++){
-          drawBar(xPos[i], yPos[i], barWidth, heights[i], i);
+          drawBar(xPos[i], yPos[i], barWidth, barHeights[i], i);
         }
         //When mouse hovering over a bar, display the information of that bar
         for (int i = 0; i < count; i++) {
@@ -259,8 +259,9 @@ void draw(){
         }
         
       }else if(barToLine){ //transition from Bar chart to Line chart
-        
-        
+        for(int i = 0; i < count; i++){
+          transition_Bar_to_Line(xPos[i], yPos[i], i);
+        }
       }else if(pieToLine){ //transition from Pie chart to Line chart
         
       
@@ -277,6 +278,8 @@ void draw(){
       }else{}
       break;
   }
+  
+  ticksHandle();
 }
 
 
@@ -316,7 +319,7 @@ void loadData(){
 
 //***** update Position information based data loaded from .csv ******//
 void updatePositionInformationForBar(){
-  heights = new float[count];
+  barHeights = new float[count];
   xPos = new float[count];
   yPos = new float[count];
   directions = new float[count];
@@ -324,10 +327,10 @@ void updatePositionInformationForBar(){
   for(int i = 0; i < count; i++){
     //ratioToMaxNum is designed to adjust the height of each bar
     float ratioToMaxNum = dataNums[i] / maxValue;
-    heights[i] = 0.8 * heightSize * ratioToMaxNum; //80% zoom: the max one 
+    barHeights[i] = 0.8 * heightSize * ratioToMaxNum; //80% zoom: the max one 
     //(xCenter - widthSize/2) is the left margin
     xPos[i] = (xCenter - widthSize/2) + barWidth + (2 * i * barWidth);
-    yPos[i] = (yCenter - heightSize/2) + heightSize - heights[i];
+    yPos[i] = (yCenter - heightSize/2) + heightSize - barHeights[i];
     directions[i] = 360.0 * dataNums[i] / dataSum; //computer direction angle for pie chart
   }
   maxValueOfBar = maxValue / 0.8; 
@@ -344,6 +347,7 @@ void ticksHandle(){
       lineToPie = false;
       pieToBar = false;
       pieToLine = false; 
+      ticks = 0;
     }
   }
 }
@@ -384,9 +388,9 @@ void mousePressed(){
       currentState = 0;
       break;
     case 2:   //Line chart button
-      //if (currentState == 0) {
-      //  barToLine = true;
-      //}
+      if (currentState == 0) {
+        barToLine = true;
+      }
       //if (currentState == 2) {
       //  pieToLine = true;
       //}
@@ -488,7 +492,6 @@ void drawLine(float xPos, float yPos, int i){    //2. 226, 44, 41    red
     isSelected[i] = false;
     stroke(0);
   }
-  
   if(i > 0){ //draw a line from previous point from second point
     stroke(226,44,41);
     line(xPosPrePoint, yPosPrePoint, xPos, yPos);
@@ -499,14 +502,35 @@ void drawLine(float xPos, float yPos, int i){    //2. 226, 44, 41    red
   yPosPrePoint = yPos;
 }
 
+//draw a static pie chart
 void drawPie(){
 
 }
 
 //%%%%%  transition   %%%%%//
-void transition_Bar_to_Line(){  //there are 3 steps: 1. Bar to Line; 2. Line to Point; 3. Connect the Points
-//Color is also changing, from // (52,109,241) blue to  (226, 44, 41) red
-
+//there are 3 steps: 1. Bar to Line; 2. Line to Point; 3. Connect the Points.  
+//Color is also changing, from // (52,109,241) blue to  (226, 44, 41) red.
+//xPos and yPos is the position information of that data and i is the index of the data
+void transition_Bar_to_Line(float xPos, float yPos, int i){  
+  //rectSize = lerp(rectSize, 200, 0.05);
+  float heightStep = barHeights[i]/60;
+  float widthStep = barWidth/60;
+  if(ticks < 60){
+    rectMode(CORNER);
+    fill(52,109,241);
+    stroke(220);
+    strokeWeight(2);
+    rect(xPos, yPos, barWidth, barHeights[i] - (heightStep * ticks), 2);
+    stroke(0);
+  }else if(ticks >= 60 & ticks < 120){
+  
+  }else if(ticks >=120 & ticks < 180){
+  
+  }else{
+    barToLine = false;
+  }
+  
+  
 }
 
 void transition_Line_to_Bar(){
