@@ -1,8 +1,10 @@
 //Canvas intformation for chart
-int xCenter;
-int yCenter;
-int widthSize;
-int heightSize;
+//int canvasX = 1200;
+//int canvasY = 800;
+float xCenter;
+float yCenter;
+float widthSize;
+float heightSize;
 PFont fontInfo;
 
 //Data information
@@ -13,9 +15,10 @@ String[] dataNames;                 //name of first column
 float[] dataNums;                   //populations of different distributions
 String[] titles;                    //titles of first row in .csv
 float maxNum = 0.0;                 //store the max population
+float maxNumOfBar = 0.0;
 float dataSum = 0.0;                //store the sum of date num
-boolean[] isSelected;               //indicate which data is selected
-String chartTitle = "Population distributions";       //title of chart
+boolean[] whichBarIsSelected;               //indicate which data is selected
+String chartTitle;       //title of chart
 
 //position informaiton for bar chart
 float[] heights;
@@ -31,20 +34,20 @@ float[] xPosPie;
 float[] yPosPie;
 
 //position information for three transition buttons
-int x_1 = 700;
-int y_1 = 50;
-int x_2 = 870;
-int y_2 = 50;
-int x_3 = 1040;
-int y_3 = 50;
+float x_1;
+float y_1;
+float x_2;
+float y_2;
+float x_3;
+float y_3;
 
 //button size
-int width_button = 120;
-int height_button = 50;
+float width_button;
+float height_button;
 
 //button selection rect size
-int width_selection = 130;
-int height_selection = 60;
+float width_selection;
+float height_selection;
 
 //button color and selection rect color
 // 1. 52,109,241
@@ -59,7 +62,7 @@ boolean bar = true;
 boolean line = false;
 
 //Chart transition statement
-int currentChartMode = 0;            //current chart mode 0 : bar chart; 1 : line chart; 2: pie chart
+int currentState = 0;                //current chart mode 0 : bar chart; 1 : line chart; 2: pie chart
 int whichButton = 0;                 //indicate which button the mouse is on. 0 for nothing, 1,2,3 for three buttons
 boolean barToLine = false;           //The following variables are used to judge chart transition action
 boolean barToPie = false;
@@ -70,55 +73,74 @@ boolean pieToLine = false;
   
 //initialize canvas
 void setup(){
-  size(1200,800);
-  //size of center canvas for chart display
-  xCenter = 600;
-  yCenter = 400;
-  widthSize = 1000;
-  heightSize = 600;
+  size(1200, 800);
   smooth();
   surface.setResizable(true);
   background(120);
   
   //Load data from .csv file and store the data into dataNames and dataNums
   loadData();                      
-  updatePositionInformationForBar(); //update position information for Bar Chart
-  chartTitle = "Population distribution";
+  chartTitle = "Hao's Chart: " + titles[0] + " measured by " + titles[1];
   fontInfo = createFont("Georgia", 16, true);
 }
 
 void draw(){
   //refresh the canvas
-  //clear();
-  //background(120);
+  clear();
+  background(120);
   surface.setResizable(true);
   rectMode(CENTER);
   fill(230);
+  xCenter = width/2;
+  yCenter = height/2;
+  widthSize = width-(width/6);
+  heightSize = height-(height/4);
   rect(xCenter, yCenter, widthSize, heightSize, 1);
-  textFont(fontInfo, 38);
+ 
+  //calculate font percent in this canvas
+  float textPercentage = (width/1200.0 + height/800.0)/2.0;
+  float textSize = 24 * textPercentage;
+  textFont(fontInfo, textSize);
   fill(250);
   textAlign(CENTER);
-  text(chartTitle, 300, 50);
+  text(chartTitle, 0.3*width, 0.05*height);
   
   //if current chart mode is bar chart or line chart, draw the following text
-  if(currentChartMode!=2){
+  if(currentState!=2){
     pushMatrix(); //push current transformation setting into matrix for later use
     //modify transform
-    translate(0.05* width, 0.5 * height);
+    translate(0.025* width, 0.5 * height);
     rotate(3 * PI / 2);
-    textFont(fontInfo, 20);
+    textFont(fontInfo, 20 * textPercentage);
     text(titles[1], 0, 0);
     popMatrix();  //pop former transform
-    text(titles[0], 0.5*width, 0.95*height);
+    text(titles[0], 0.5*width, 0.975*height);
   }
+  
+  //calculate the position and size of three buttons
+  //position information for three transition buttons
+  x_1 = (760.0/1200.0) * width;
+  y_1 = 0.0625 * height;
+  x_2 = (900.0/1200.0) * width;
+  y_2 = 0.0625 * height;
+  x_3 = (1040.0/1200.0) * width;
+  y_3 = 0.0625 * height;
+
+  //button size
+  width_button = width / 10;
+  height_button = 0.0625 * height;
+
+  //button selection rect size
+  width_selection = width/10 + (10/1200) * width;
+  height_selection = 0.0625 * height + (10/800) * height;
   
   //draw three buttons : 1. Bar Chart; 2. Line Chart; 3. Pie Chart.
   mouseOnWhichButton(); //detect mouse position, if mouse is hovering over button change color
   //draw selection rect for buttons based on current chart mode
   stroke(249,176,12);  //selection rect
-  strokeWeight(8);
+  strokeWeight(10.0/1200.0 * width);
   fill(249,176,12);
-  switch(currentChartMode){
+  switch(currentState){
     case 0:
       rect(x_1, y_1, width_selection, height_selection, 8);
       break;
@@ -169,14 +191,43 @@ void draw(){
   }
   //draw text on buttons
   fill(240);
-  text("Bar chart", x_1, y_1+8);
-  text("Line chart", x_2, y_2+8);
-  text("Pie chart", x_3, y_3+8);
-  //toggleAnimationPhase();
+  text("Bar chart", x_1, y_1 + 0.01*height);
+  text("Line chart", x_2, y_2 + 0.01*height );
+  text("Pie chart", x_3, y_3 + 0.01*height);
   
+  //transitionControl();
   
   //debug
   //println(whichButton);
+  
+  updatePositionInformationForBar(); //update position information for Bar Chart
+  //The following is the main part of this draw() function: draw bar chart, line chart and pie chart
+  //There are 9 situations: 1. bar chart; 2. bar to line; 3. bar to pie;
+  //                        4. line chart; 5. line to bar; 6. line to pie;
+  //                        7. pie chart; 8. pie to bar; 9. pie to line;
+  //among those situations, there are 4 special one 1. 2. 4. 5.
+  //because 1. 2. 4. 5. must have labels and horizontal lines for indication
+  
+  if(barToPie){
+  
+  }
+  
+  if(pieToBar){
+  
+  }
+  
+  if(lineToPie){
+  
+  }
+  
+  if(pieToLine){
+  
+  }
+  
+  //situations 1. 2. 4. 5. draw labels for x-axis and y-axis
+  if(currentState!=2 && !barToPie && !lineToPie){
+    
+  }
 }
 
 void loadData(){
@@ -217,16 +268,17 @@ void updatePositionInformationForBar(){
   xPos = new float[count];
   yPos = new float[count];
   directions = new float[count];
-  barWidth = widthSize/(2.0 * count + 1);
+  barWidth = ((5.0/6.0)*width)/(2.0 * count + 1); //width of each bar
   for(int i = 0; i < count; i++){
     //ratioToMaxNum is designed to adjust the height of each bar
     float ratioToMaxNum = dataNums[i] / maxNum;
-    heights[i] = 0.8 * heightSize * ratioToMaxNum; //80% zoom
+    heights[i] = 0.8 * heightSize * ratioToMaxNum; //80% zoom: the max one 
     //(xCenter - widthSize/2) is the left margin
     xPos[i] = (xCenter - widthSize/2) + barWidth + (2 * i * barWidth);
     yPos[i] = (yCenter - heightSize/2) + heightSize - heights[i];
     directions[i] = 360.0 * dataNums[i] / dataSum; //computer direction angle for pie chart
   }
+  maxNumOfBar = maxNum / 0.8; 
 }
 
 //detect mouse position
@@ -250,7 +302,9 @@ void mouseOnWhichButton(){
 
 void mousePressed(){
   mouseOnWhichButton();
-  switch(whichButton){
+  //Only without transition, program can change the situation.
+  if(!barToLine && !barToPie && !lineToBar && !lineToPie && !pieToBar && !pieToLine){
+    switch(whichButton){
     case 0: break;
     case 1: 
       
@@ -261,13 +315,28 @@ void mousePressed(){
     case 3: 
       
       break;
+    }
   }
 }
 
-//drawLabels for bar chart and line chart
+//drawLabels for bar chart and line chart and transition of line-to-bar and bar-to-line 
 void drawLabels(){
   
 }
 
-void drawBar(float xPos, float yPos, float barHeight){
+//draw a bar and detect whether the mouse is on this bar, use whichBarIsSelected[] to record
+void drawBar(float xPos, float yPos, float barHeight){ //52,109,241 blue 249, 176, 12 yellow
+  //mouse on this bar
+  if(mouseX > xPos && mouseX < xPos + barWidth &&
+  mouseY > yPos && mouseY < yPos + barHeight){
+    stroke(249,176,12);  //selection rect
+    strokeWeight(4);
+    fill(249,176,12);
+    rectMode(CORNER);
+    rect(xPos, yPos, barWidth, barHeight);
+  }
+  else{
+    rectMode(CORNER);
+    rect(xPos, yPos, barWidth, barHeight);
+  }
 }
