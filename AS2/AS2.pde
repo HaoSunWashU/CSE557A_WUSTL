@@ -515,6 +515,10 @@ void transition_Bar_to_Line(float xPos, float yPos, int i){
   //rectSize = lerp(rectSize, 200, 0.05);
   float heightStep = barHeights[i]/60;
   float widthStep = barWidth/60;
+  float percentage = width/1200.0; //calculate the scale percentage for point radius
+  float redStep = (226 - 52)/20;
+  float greenStep = (44 - 109)/20;
+  float blueStep = (41-241)/20;
   if(ticks < 60){
     rectMode(CORNER);
     fill(52,109,241);
@@ -523,14 +527,46 @@ void transition_Bar_to_Line(float xPos, float yPos, int i){
     rect(xPos, yPos, barWidth, barHeights[i] - (heightStep * ticks), 2);
     stroke(0);
   }else if(ticks >= 60 & ticks < 120){
-  
+    float tempHeight = 14.0 * percentage;
+    rectMode(CORNER);
+    fill(52,109,241);
+    stroke(220);
+    strokeWeight(2);
+    rect(xPos, yPos, barWidth - (widthStep * (ticks - 60)), tempHeight, 2);
+    stroke(0);
   }else if(ticks >=120 & ticks < 180){
-  
+    //draw points and lines
+    if(ticks < 160){
+      stroke(52,109,241);
+      fill(52,109,241);
+      float pointRadius = 14.0 * percentage;
+      ellipse(xPos, yPos, pointRadius, pointRadius);
+      stroke(0);
+      if(i > 0){
+        float xStep = (xPos - xPosPrePoint) / 40;
+        float yStep = (yPos - yPosPrePoint) / 40;
+        stroke(52,109,241);
+        line(xPosPrePoint, yPosPrePoint, xPosPrePoint + xStep * (ticks - 120), yPosPrePoint + yStep * (ticks - 120));
+        stroke(0);
+      }
+      xPosPrePoint = xPos;
+      yPosPrePoint = yPos;
+    }else{ //change color from blue to red  160 - 180
+      stroke(52 + redStep * (ticks - 160), 109 + greenStep * (ticks - 160), 241 + blueStep * (ticks - 160));
+      fill(52 + redStep * (ticks - 160), 109 + greenStep * (ticks - 160), 241 + blueStep * (ticks - 160));
+      float pointRadius = 14.0 * percentage;
+      ellipse(xPos, yPos, pointRadius, pointRadius);
+      if(i > 0){
+        stroke(52 + redStep * (ticks - 160), 109 + greenStep * (ticks - 160), 241 + blueStep * (ticks - 160));
+        line(xPos, yPos, xPosPrePoint, yPosPrePoint);
+        stroke(0);
+      }
+      xPosPrePoint = xPos;
+      yPosPrePoint = yPos;
+    }
   }else{
-    barToLine = false;
+    //barToLine = false;
   }
-  
-  
 }
 
 void transition_Line_to_Bar(){
