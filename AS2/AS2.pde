@@ -239,7 +239,9 @@ void draw(){
           }
         }
       }else if(lineToBar){ //transition from Line chart to Bar chart
-      
+        for(int i = 0; i < count; i++){
+          transition_Line_to_Bar(xPos[i], yPos[i], i);
+        }
       }else if(pieToBar){ //transition from Pie chart to Bar chart
       
       }else{}
@@ -379,9 +381,9 @@ void mousePressed(){
     switch(whichButton){
     case 0: break;
     case 1:   //Bar chart button
-      //if (currentState == 1) {
-      //  lineToBar = true;
-      //}
+      if (currentState == 1) {
+        lineToBar = true;
+      }
       //if (currentState == 2) {
       //  pieToBar = true;
       //}
@@ -497,7 +499,6 @@ void drawLine(float xPos, float yPos, int i){    //2. 226, 44, 41    red
     line(xPosPrePoint, yPosPrePoint, xPos, yPos);
     stroke(0);
   }
-  
   xPosPrePoint = xPos;
   yPosPrePoint = yPos;
 }
@@ -535,7 +536,7 @@ void transition_Bar_to_Line(float xPos, float yPos, int i){
     rect(xPos, yPos, barWidth - (widthStep * (ticks - 60)), tempHeight, 2);
     stroke(0);
   }else if(ticks >=120 & ticks < 180){
-    //draw points and lines
+    //draw points and lines  40 ticks
     if(ticks < 160){
       stroke(52,109,241);
       fill(52,109,241);
@@ -569,8 +570,56 @@ void transition_Bar_to_Line(float xPos, float yPos, int i){
   }
 }
 
-void transition_Line_to_Bar(){
-
+void transition_Line_to_Bar(float xPos, float yPos, int i){ //(52,109,241) blue to  (226, 44, 41) red.
+  float heightStep = barHeights[i]/60;
+  float widthStep = barWidth/60;
+  float percentage = width/1200.0; //calculate the scale percentage for point radius
+  float redStep = (52 - 226)/20;
+  float greenStep = (109 - 44)/20;
+  float blueStep = (241-41)/20;
+  
+  if(ticks < 40){ // draw line and point 
+    stroke(226, 44, 41);
+    fill(226, 44, 41);
+    float pointRadius = 14.0 * percentage;
+    ellipse(xPos, yPos, pointRadius, pointRadius);
+    stroke(0);
+    if(i > 0){
+      float xStep = (xPosPrePoint - xPos) / 40;
+      float yStep = (yPosPrePoint - yPos) / 40;
+      stroke(226, 44, 41);
+      line(xPosPrePoint, yPosPrePoint, xPos + xStep * ticks, yPos + yStep * ticks);
+      stroke(0);
+      }
+      xPosPrePoint = xPos;
+      yPosPrePoint = yPos;
+  }else if(ticks >= 40 & ticks < 100){
+    float tempHeight = 14.0 * percentage;
+    rectMode(CORNER);
+    fill(226, 44, 41);
+    stroke(220);
+    strokeWeight(2);
+    rect(xPos, yPos, (widthStep * (ticks - 40)), tempHeight, 2);
+    stroke(0);
+  }else if(ticks >=100 & ticks < 180){
+    if(ticks < 160){
+      rectMode(CORNER);
+      fill(226, 44, 41);
+      stroke(220);
+      strokeWeight(2);
+      rect(xPos, yPos, barWidth, (heightStep * (ticks - 100)), 2);
+      stroke(0);
+    }else{ //change color from blue to red  160 - 180
+      fill(226 + redStep * (ticks - 160), 44 + greenStep * (ticks - 160), 41 + blueStep * (ticks - 160));
+      rectMode(CORNER);
+      stroke(220);
+      strokeWeight(2);
+      rect(xPos, yPos, barWidth, barHeights[i], 2);
+      stroke(0);
+    }
+  }else{
+    //barToLine = false;
+  }
 }
 
 void transition_Bar_to_Pie(){
