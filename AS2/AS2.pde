@@ -271,8 +271,7 @@ void draw(){
       break;
     case 2:  //(3) 7. pie chart; 8. bar to pie; 9. line to pie;
       if(!barToPie && !lineToPie){ //draw Pie chart
-      
-      
+        drawPie();
       }else if(barToPie){
       
       }else if(lineToPie){
@@ -280,8 +279,7 @@ void draw(){
       }else{}
       break;
   }
-  
-  ticksHandle();
+  ticksHandle();  //update ticks and transition condition
 }
 
 
@@ -443,8 +441,9 @@ void drawLabels_X(){
     fill(250);
     pushMatrix();
     translate(xPos[i], 0.92* height);
-    rotate(7.0*PI/4.0);
-    text(dataNames[i], 0.0, 0.0);
+    rotate(PI/4.0);
+    textAlign(CENTER);
+    text(dataNames[i], 0.0, 0.0, 80, 40);
     popMatrix();
   }
 }
@@ -505,6 +504,11 @@ void drawLine(float xPos, float yPos, int i){    //2. 226, 44, 41    red
 
 //draw a static pie chart
 void drawPie(){
+  float pieRadius = max(0.4 * width, 0.4 * height) / 2.0;
+  float startAngle = 0; // startAngle will change for each part
+}
+
+void isMouseOnPie(float centerX, float centerY, float radius, float angle_1, float angle_2){
 
 }
 
@@ -514,9 +518,9 @@ void drawPie(){
 //xPos and yPos is the position information of that data and i is the index of the data
 void transition_Bar_to_Line(float xPos, float yPos, int i){  
   //rectSize = lerp(rectSize, 200, 0.05);
-  float heightStep = barHeights[i]/60;
-  float widthStep = barWidth/60;
   float percentage = width/1200.0; //calculate the scale percentage for point radius
+  float heightStep = (barHeights[i] - 14.0 * percentage)/59;
+  float widthStep = barWidth/60;
   float redStep = (226 - 52)/20;
   float greenStep = (44 - 109)/20;
   float blueStep = (41-241)/20;
@@ -571,9 +575,9 @@ void transition_Bar_to_Line(float xPos, float yPos, int i){
 }
 
 void transition_Line_to_Bar(float xPos, float yPos, int i){ //(52,109,241) blue to  (226, 44, 41) red.
-  float heightStep = barHeights[i]/60;
-  float widthStep = barWidth/60;
   float percentage = width/1200.0; //calculate the scale percentage for point radius
+  float heightStep = (barHeights[i] - 14.0 * percentage)/59;
+  float widthStep = barWidth/60;
   float redStep = (52 - 226)/20;
   float greenStep = (109 - 44)/20;
   float blueStep = (241-41)/20;
@@ -607,7 +611,7 @@ void transition_Line_to_Bar(float xPos, float yPos, int i){ //(52,109,241) blue 
       fill(226, 44, 41);
       stroke(220);
       strokeWeight(2);
-      rect(xPos, yPos, barWidth, (heightStep * (ticks - 100)), 2);
+      rect(xPos, yPos, barWidth, 14.0 * percentage + (heightStep * (ticks - 100)), 2);
       stroke(0);
     }else{ //change color from blue to red  160 - 180
       fill(226 + redStep * (ticks - 160), 44 + greenStep * (ticks - 160), 41 + blueStep * (ticks - 160));
