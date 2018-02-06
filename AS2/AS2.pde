@@ -390,9 +390,9 @@ void mousePressed(){
       if (currentState == 1) {
         lineToBar = true;
       }
-      //if (currentState == 2) {
-      //  pieToBar = true;
-      //}
+      if (currentState == 2) {
+        pieToBar = true;
+      }
       currentState = 0;
       break;
     case 2:   //Line chart button
@@ -738,9 +738,6 @@ void transition_Bar_to_Pie(float xPos, float yPos, int i){
   float percentage = (width/1200.0 + height/800.0)/2.0;; //calculate the scale percentage for point radius
   float heightStep = (barHeights[i] - 14.0 * percentage)/59;
   float widthStep = barWidth/60;
-  float redStep = (226 - 52)/20;
-  float greenStep = (44 - 109)/20;
-  float blueStep = (41-241)/20;
   if(ticks < 60){
     rectMode(CORNER);
     fill(52,109,241);
@@ -785,7 +782,49 @@ void transition_Bar_to_Pie(float xPos, float yPos, int i){
 }
 
 void transition_Pie_to_Bar(float xPos, float yPos, int i){
-
+  float percentage = (width/1200.0 + height/800.0)/2.0;; //calculate the scale percentage for point radius
+  float heightStep = (barHeights[i] - 14.0 * percentage)/59;
+  float widthStep = barWidth/60;
+  float pieCenterX = width * 725.0/1200.0;
+  float pieCenterY = height * 400.0/800.0;
+  if(ticks < 20){
+    fill(colorsForPie[i%colorsForPie.length]);
+    float startAngle = 0;
+    for(int j = 0; j < i; j++){
+      startAngle += radians(angles[j]);
+    }
+    float endAngle = startAngle + radians(angles[i]);
+    float diameterPie = 500.0 * ((width/1200.0 + height/800.0) / 2.0);
+    float diamStep = diameterPie/20;
+    stroke(250);
+    strokeWeight(4);
+    arc(width * 725.0/1200.0, height * 400.0/800.0, diameterPie - diamStep * ticks, diameterPie - diamStep * ticks, startAngle, endAngle, PIE);
+  }else if(ticks >= 20 & ticks < 60){
+    float xStep = (xPos - pieCenterX)/40;
+    float yStep = (yPos - pieCenterY)/40;
+    stroke(52,109,241);
+    fill(52,109,241);
+    float pointRadius = 14.0 * percentage;
+    ellipse(pieCenterX + (ticks-20) * xStep, pieCenterY + (ticks-20) * yStep, pointRadius, pointRadius);
+    stroke(0);
+  }else if(ticks >=60 & ticks < 180){
+    if(ticks < 120){
+      float tempHeight = 14.0 * percentage;
+      rectMode(CORNER);
+      fill(52,109,241);
+      stroke(220);
+      strokeWeight(2);
+      rect(xPos, yPos, (widthStep * (ticks - 60)), tempHeight, 2);
+      stroke(0);
+    }else{
+      rectMode(CORNER);
+      fill(52,109,241);
+      stroke(220);
+      strokeWeight(2);
+      rect(xPos, yPos, barWidth, (heightStep * (ticks - 120)), 2);
+      stroke(0);
+    }
+  }
 }
 
 void transition_Line_to_Pie(){
