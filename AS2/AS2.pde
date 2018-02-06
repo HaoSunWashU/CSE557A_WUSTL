@@ -31,7 +31,7 @@ float xPosPrePoint = 0.0; //store the previous point of current point, in order 
 float yPosPrePoint = 0.0;
 
 //position information for pie chart
-float[] directions;                  //direction angle for each part
+float[] angles;                  //direction angle for each part
 float[] xPosPie;
 float[] yPosPie;
 
@@ -57,7 +57,11 @@ float height_selection;
 // 3. 45, 156, 65    green
 // selected 249,176,12
 
-//Colors of pie
+//Colors of pie, 10 colors, cycle use
+color[] colorsForPie = {color(255, 0, 255), color(102, 255, 51), color(255, 204, 0),
+color(51, 102, 255), color(255, 153, 255), color(204, 204, 0), color(0, 255, 255),
+color(204, 0, 204), color(0, 153, 204), color(51, 102, 0), color(102, 102, 153), 
+color(102, 153, 153), color(204, 255, 255)};
 
 //Current chart statement
 boolean bar = true;                  
@@ -203,9 +207,6 @@ void draw(){
   text("Bar chart", x_1, y_1 + 0.01*height);
   text("Line chart", x_2, y_2 + 0.01*height );
   text("Pie chart", x_3, y_3 + 0.01*height);
-  
-  //transitionControl();
-  
   //debug
   //println(whichButton);
   
@@ -282,7 +283,6 @@ void draw(){
   ticksHandle();  //update ticks and transition condition
 }
 
-
 //***** Load data from .csv *****//
 void loadData(){
   //load first row of the data.csv
@@ -294,7 +294,7 @@ void loadData(){
   count = dataTable.getRowCount();
   dataNames = new String[count];
   dataNums = new float[count];
-  
+  angles = new float[count];
   //iterate over all the rows in a table
   int rowCount = 0;
   for(TableRow row : dataTable.rows()){
@@ -309,12 +309,17 @@ void loadData(){
       maxValue = num;
     }
   }
+  for(int i = 0; i < count; i++){
+    angles[i] = 360.0 * dataNums[i] / dataSum; //computer direction angle for pie chart
+    println(angles[i]);  
+  }
   //debug
   println("num of rows: " + count);
   println("title: " + titles[0] + ", " + titles[1]);
   println("First row of data: " + dataNames[0] + ", " + dataNums[0]);
   println("The max num is: " + maxValue);
   println("The sum is: " + dataSum);
+  
 }
 
 //***** update Position information based data loaded from .csv ******//
@@ -322,7 +327,6 @@ void updatePositionInformationForBar(){
   barHeights = new float[count];
   xPos = new float[count];
   yPos = new float[count];
-  directions = new float[count];
   barWidth = ((5.0/6.0)*width)/(2.0 * count + 1); //width of each bar
   for(int i = 0; i < count; i++){
     //ratioToMaxNum is designed to adjust the height of each bar
@@ -331,7 +335,7 @@ void updatePositionInformationForBar(){
     //(xCenter - widthSize/2) is the left margin
     xPos[i] = (xCenter - widthSize/2) + barWidth + (2 * i * barWidth);
     yPos[i] = (yCenter - heightSize/2) + heightSize - barHeights[i];
-    directions[i] = 360.0 * dataNums[i] / dataSum; //computer direction angle for pie chart
+    //angles[i] = 360.0 * dataNums[i] / dataSum; //computer direction angle for pie chart
   }
   maxValueOfBar = maxValue / 0.8; 
 }
@@ -351,7 +355,6 @@ void ticksHandle(){
     }
   }
 }
-
 
 //&&&&&  Mouse detection &&&&&//
 void mouseOnWhichButton(){
@@ -504,12 +507,114 @@ void drawLine(float xPos, float yPos, int i){    //2. 226, 44, 41    red
 
 //draw a static pie chart
 void drawPie(){
-  float pieRadius = max(0.4 * width, 0.4 * height) / 2.0;
-  float startAngle = 0; // startAngle will change for each part
+  // if there are too many rows in the data, show "it is supported to be shown in a pie chart"
+  if(count > 16){
+    fill(45, 156, 65);
+    textAlign(CENTER);
+    text("Pie chart doestn't support your data source", width/2, height/2);
+  }else{
+    //float pieRadius = max(0.4 * width, 0.4 * height) / 2.0;
+    float startAngle = 0; // startAngle will change for each part
+    //draw a rect for labels
+    fill(255);
+    rectMode(CENTER);
+    rect(250.0/1200.0 * width, height/2.0, (200.0/1200.0) * width, (400.0/800.0) * height, 10);
+    
+    float labelHeight = (350.0/800.0) * height / count;
+    
+    //for(int i = 0; i < count; i++){
+    //  int j = i % colorsForPie.length;
+    //  fill(colorsForPie[j]);
+    //  float textPercentage = (width/1200.0 + height/800.0)/2.0;
+    //  textAlign(CENTER);
+    //  textSize(12 * textPercentage);
+    //  text(dataNames[i], 250.0/1200.0 * width, 
+    //  (200.0/800.0 * height + (25.0/400.0) * height) + labelHeight * i);
+    //}
+    
+    //&&&&& draw pie &&&&&
+    //calculate radius 
+    float diameterPie = 500.0 * ((width/1200.0 + height/800.0) / 2.0);
+    for(int i = 0; i < count; i++){
+      fill(colorsForPie[i%colorsForPie.length]);
+      float angle = angles[i];
+      float endAngle = startAngle + radians(angle);
+      stroke(250);
+      strokeWeight(4);
+      arc(width * 725.0/1200.0, height * 400.0/800.0, diameterPie, diameterPie, startAngle, endAngle, PIE);
+      
+      if(isMouseOnPie(width * 725.0/1200.0, height * 400.0/800.0, diameterPie/2.0, startAngle, endAngle)){
+        arc(width * 725.0/1200.0, height * 400.0/800.0, diameterPie * 1.1, diameterPie * 1.1, startAngle, endAngle, PIE);
+        isSelected[i] = true;
+      }else{ // no selected
+        isSelected[i] = false;
+      }
+      startAngle = endAngle;
+      strokeWeight(2);
+      stroke(0);
+    }
+    
+    for(int i = 0; i < count; i++){
+      if(isSelected[i]){
+        //draw labels in that rect
+        float textPercentage = (width/1200.0 + height/800.0)/2.0;
+        fill(colorsForPie[i%colorsForPie.length]);
+        textAlign(CENTER);
+        textSize(16 * textPercentage);
+        text(dataNames[i], 250.0/1200.0 * width, 
+        (200.0/800.0 * height + (25.0/400.0) * height) + labelHeight * i);
+        float percent = ((int)((dataNums[i] / dataSum) * 10000))/100.0;
+        stroke(4);
+        stroke(249,176,12);
+        noFill();
+        rect(250.0/1200.0 * width, (200.0/800.0 * height + (23.0/400.0) * height) + labelHeight * i, 
+          196.0/1200.0 * width, labelHeight);
+        fill(0);
+        textSize(22 * textPercentage);
+        text(dataNames[i] + " : " + percent + "%", mouseX, mouseY);
+        stroke(0);
+        strokeWeight(2);
+      }
+      else{
+        //draw labels in that rect
+        float textPercentage = (width/1200.0 + height/800.0)/2.0;
+        fill(colorsForPie[i%colorsForPie.length]);
+        textAlign(CENTER);
+        textSize(12 * textPercentage);
+        text(dataNames[i], 250.0/1200.0 * width, 
+        (200.0/800.0 * height + (25.0/400.0) * height) + labelHeight * i);
+      }
+    }
+     
+    //add text for each part and detect mouse
+    //startAngle = 0;
+    //for(int i = 0; i < count; i++){
+    //  float percent = (int)(dataNums[i] / dataSum * 1000)/100.0;
+    //  float angle = angles[i];
+    //  float endAngle = startAngle + radians(angle);
+    //}
+    
+  }
 }
 
-void isMouseOnPie(float centerX, float centerY, float radius, float angle_1, float angle_2){
-
+boolean isMouseOnPie(float centerX, float centerY, float radius, float startAngle, float endAngle){
+  float distance = sqrt(pow(mouseX - centerX, 2) + pow(mouseY - centerY, 2));
+  if(distance < radius) {
+    float mouseAngle = atan2(mouseY - centerY, mouseX - centerX);
+    if(mouseAngle < 0){
+      mouseAngle += PI * 2.0;
+    }
+    
+    if(mouseAngle > startAngle && mouseAngle < endAngle){
+      return true;
+    }else{
+      return false;
+    }
+  }else{
+    return false;
+  }
+ 
+  
 }
 
 //%%%%%  transition   %%%%%//
