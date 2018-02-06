@@ -112,7 +112,7 @@ void draw(){
  
   //calculate font percent in this canvas
   float textPercentage = (width/1200.0 + height/800.0)/2.0;
-  float textSize = 24 * textPercentage;
+  float textSize = 20 * textPercentage;
   textFont(fontInfo, textSize);
   fill(250);
   textAlign(CENTER);
@@ -281,7 +281,9 @@ void draw(){
           transition_Bar_to_Pie(xPos[i], yPos[i], i);
         }
       }else if(lineToPie){
-      
+        for(int i = 0; i < count; i++){
+          transition_Line_to_Pie(xPos[i], yPos[i], i);
+        }
       }else{}
       break;
   }
@@ -349,13 +351,17 @@ void updatePositionInformationForBar(){
 void ticksHandle(){
   if(barToLine || barToPie || lineToBar || lineToPie || pieToBar || pieToLine){
     ticks++;
-    if(ticks >= 180){ //transition finish, all false and ticks back to 0
-      barToLine = false;
+    if(ticks >= 180 && (barToLine || lineToBar || lineToPie || pieToLine )){ //transition finish, all false and ticks back to 0
+      barToLine=false;
+      lineToBar=false;
+      lineToPie=false;
+      pieToLine=false;
+      
+      ticks = 0;
+    }
+    if(ticks >= 200){
       barToPie = false;
-      lineToBar = false;
-      lineToPie = false;
       pieToBar = false;
-      pieToLine = false; 
       ticks = 0;
     }
   }
@@ -753,13 +759,12 @@ void transition_Bar_to_Pie(float xPos, float yPos, int i){
     strokeWeight(2);
     rect(xPos, yPos, barWidth - (widthStep * (ticks - 60)), tempHeight, 2);
     stroke(0);
-  }else if(ticks >=120 & ticks < 180){
+  }else if(ticks >=120 & ticks < 200){
     if(ticks < 160){
       float pieCenterX = width * 725.0/1200.0;
       float pieCenterY = height * 400.0/800.0;
       float xStep = (pieCenterX - xPos)/40;
       float yStep = (pieCenterY - yPos)/40;
-      
       stroke(52,109,241);
       fill(52,109,241);
       float pointRadius = 14.0 * percentage;
@@ -773,7 +778,7 @@ void transition_Bar_to_Pie(float xPos, float yPos, int i){
       }
       float endAngle = startAngle + radians(angles[i]);
       float diameterPie = 500.0 * ((width/1200.0 + height/800.0) / 2.0);
-      float diamStep = diameterPie/20;
+      float diamStep = diameterPie/40;
       stroke(250);
       strokeWeight(4);
       arc(width * 725.0/1200.0, height * 400.0/800.0, diamStep * (ticks - 160), diamStep * (ticks - 160), startAngle, endAngle, PIE);
@@ -787,7 +792,7 @@ void transition_Pie_to_Bar(float xPos, float yPos, int i){
   float widthStep = barWidth/60;
   float pieCenterX = width * 725.0/1200.0;
   float pieCenterY = height * 400.0/800.0;
-  if(ticks < 20){
+  if(ticks < 40){
     fill(colorsForPie[i%colorsForPie.length]);
     float startAngle = 0;
     for(int j = 0; j < i; j++){
@@ -795,42 +800,42 @@ void transition_Pie_to_Bar(float xPos, float yPos, int i){
     }
     float endAngle = startAngle + radians(angles[i]);
     float diameterPie = 500.0 * ((width/1200.0 + height/800.0) / 2.0);
-    float diamStep = diameterPie/20;
+    float diamStep = diameterPie/40;
     stroke(250);
     strokeWeight(4);
     arc(width * 725.0/1200.0, height * 400.0/800.0, diameterPie - diamStep * ticks, diameterPie - diamStep * ticks, startAngle, endAngle, PIE);
-  }else if(ticks >= 20 & ticks < 60){
+  }else if(ticks >= 40 & ticks < 80){
     float xStep = (xPos - pieCenterX)/40;
     float yStep = (yPos - pieCenterY)/40;
     stroke(52,109,241);
     fill(52,109,241);
     float pointRadius = 14.0 * percentage;
-    ellipse(pieCenterX + (ticks-20) * xStep, pieCenterY + (ticks-20) * yStep, pointRadius, pointRadius);
+    ellipse(pieCenterX + (ticks-40) * xStep, pieCenterY + (ticks-40) * yStep, pointRadius, pointRadius);
     stroke(0);
-  }else if(ticks >=60 & ticks < 180){
-    if(ticks < 120){
+  }else if(ticks >=80 & ticks < 200){
+    if(ticks < 140){
       float tempHeight = 14.0 * percentage;
       rectMode(CORNER);
       fill(52,109,241);
       stroke(220);
       strokeWeight(2);
-      rect(xPos, yPos, (widthStep * (ticks - 60)), tempHeight, 2);
+      rect(xPos, yPos, (widthStep * (ticks - 80)), tempHeight, 2);
       stroke(0);
     }else{
       rectMode(CORNER);
       fill(52,109,241);
       stroke(220);
       strokeWeight(2);
-      rect(xPos, yPos, barWidth, (heightStep * (ticks - 120)), 2);
+      rect(xPos, yPos, barWidth, (heightStep * (ticks - 140)), 2);
       stroke(0);
     }
   }
 }
 
-void transition_Line_to_Pie(){
+void transition_Line_to_Pie(float xPos, float yPos, int i){
 
 }
 
-void transition_Pie_to_Line(){
+void transition_Pie_to_Line(float xPos, float yPos, int i){
 
 }
