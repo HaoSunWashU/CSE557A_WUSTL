@@ -269,8 +269,9 @@ void draw(){
           transition_Bar_to_Line(xPos[i], yPos[i], i);
         }
       }else if(pieToLine){ //transition from Pie chart to Line chart
-        
-      
+        for(int i = 0; i < count; i++){
+          transition_Pie_to_Line(xPos[i], yPos[i], i);
+        }
       }else{}
       break;
     case 2:  //(3) 7. pie chart; 8. bar to pie; 9. line to pie;
@@ -405,18 +406,18 @@ void mousePressed(){
       if (currentState == 0) {
         barToLine = true;
       }
-      //if (currentState == 2) {
-      //  pieToLine = true;
-      //}
+      if (currentState == 2) {
+        pieToLine = true;
+      }
       currentState = 1;
       break;
     case 3:   //Pie chart button
       if (currentState == 0) {
         barToPie = true;
       }
-      //if (currentState == 1) {
-      //  lineToPie = true;
-      //}
+      if (currentState == 1) {
+        lineToPie = true;
+      }
       currentState = 2;
       break;
     }
@@ -833,9 +834,89 @@ void transition_Pie_to_Bar(float xPos, float yPos, int i){
 }
 
 void transition_Line_to_Pie(float xPos, float yPos, int i){
-
+  float percentage = (width/1200.0 + height/800.0)/2.0;; //calculate the scale percentage for point radius
+  if(ticks < 60){ // draw line and point 
+    stroke(226, 44, 41);
+    fill(226, 44, 41);
+    float pointRadius = 14.0 * percentage;
+    ellipse(xPos, yPos, pointRadius, pointRadius);
+    stroke(0);
+    if(i > 0){
+      float xStep = (xPosPrePoint - xPos) / 60;
+      float yStep = (yPosPrePoint - yPos) / 60;
+      stroke(226, 44, 41);
+      line(xPosPrePoint, yPosPrePoint, xPos + xStep * ticks, yPos + yStep * ticks);
+      stroke(0);
+      }
+      xPosPrePoint = xPos;
+      yPosPrePoint = yPos;
+  }else if(ticks >= 60 & ticks < 120){
+    float pieCenterX = width * 725.0/1200.0;
+    float pieCenterY = height * 400.0/800.0;
+    float xStep = (pieCenterX - xPos)/60;
+    float yStep = (pieCenterY - yPos)/60;
+    stroke(226, 44, 41);
+    fill(226, 44, 41);
+    float pointRadius = 14.0 * percentage;
+    ellipse(xPos + (ticks-60) * xStep, yPos + (ticks-60) * yStep, pointRadius, pointRadius);
+    stroke(0);
+  }else if(ticks >=120 & ticks < 180){
+    fill(colorsForPie[i%colorsForPie.length]);
+    float startAngle = 0;
+    for(int j = 0; j < i; j++){
+      startAngle += radians(angles[j]);
+    }
+    float endAngle = startAngle + radians(angles[i]);
+    float diameterPie = 500.0 * ((width/1200.0 + height/800.0) / 2.0);
+    float diamStep = diameterPie/60;
+    stroke(250);
+    strokeWeight(4);
+    arc(width * 725.0/1200.0, height * 400.0/800.0, diamStep * (ticks - 120), diamStep * (ticks - 120), startAngle, endAngle, PIE);    
+  }else{
+    //barToLine = false;
+  }
 }
 
 void transition_Pie_to_Line(float xPos, float yPos, int i){
-
+  float percentage = (width/1200.0 + height/800.0)/2.0;; //calculate the scale percentage for point radius
+  if(ticks < 60){ // draw line and point 
+    fill(colorsForPie[i%colorsForPie.length]);
+    float startAngle = 0;
+    for(int j = 0; j < i; j++){
+      startAngle += radians(angles[j]);
+    }
+    float endAngle = startAngle + radians(angles[i]);
+    float diameterPie = 500.0 * ((width/1200.0 + height/800.0) / 2.0);
+    float diamStep = diameterPie/60;
+    stroke(250);
+    strokeWeight(4);
+    arc(width * 725.0/1200.0, height * 400.0/800.0, diameterPie - diamStep * ticks, diameterPie - diamStep * ticks, startAngle, endAngle, PIE); 
+  }else if(ticks >= 60 & ticks < 120){
+    float pieCenterX = width * 725.0/1200.0;
+    float pieCenterY = height * 400.0/800.0;
+    float xStep = (xPos - pieCenterX)/60;
+    float yStep = (yPos - pieCenterY)/60;
+    stroke(226, 44, 41);
+    fill(226, 44, 41);
+    float pointRadius = 14.0 * percentage;
+    ellipse(pieCenterX + (ticks-60) * xStep, pieCenterY + (ticks-60) * yStep, pointRadius, pointRadius);
+    stroke(0);
+  }else if(ticks >=120 & ticks < 180){
+    stroke(226, 44, 41);
+    fill(226, 44, 41);
+    float pointRadius = 14.0 * percentage;
+    ellipse(xPos, yPos, pointRadius, pointRadius);
+    stroke(0);
+    if(i > 0){
+      float xStep = (xPos - xPosPrePoint) / 60;
+      float yStep = (yPos - yPosPrePoint) / 60;
+      stroke(226, 44, 41);
+      line(xPosPrePoint, yPosPrePoint, xPosPrePoint + xStep * (ticks - 120), yPosPrePoint + yStep * (ticks - 120));
+      stroke(0);
+      }
+    xPosPrePoint = xPos;
+    yPosPrePoint = yPos;
+  }else{
+    //barToLine = false;
+  }
 }
