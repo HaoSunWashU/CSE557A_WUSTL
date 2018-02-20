@@ -5,7 +5,8 @@ String[] namesForColumns;
 String[] namesForRows;
 
 int[] displayOrder;
-ArrayList<String> selectedRows;
+ArrayList<String> selectedRows; 
+ArrayList<String> allRows;
 //axes
 ArrayList<Axis> axes;
 Axis draggingAxis;
@@ -59,8 +60,10 @@ void loadData(){
   namesForRows = new String[dataReader.getNumRows()];
   namesForRows = dataReader.getNamesForRows();
   selectedRows = new ArrayList<String>();
+  allRows = new ArrayList<String>();
   for(String name: namesForRows){
     selectedRows.add(name);
+    allRows.add(name);
   }
 }
 
@@ -80,7 +83,7 @@ void drawAxes(){
 
 //based on the data in each row of selectedRows, draw line row by row
 void drawLines(){
-   strokeWeight(1);
+   strokeWeight(2);
    
    if(isDraggingAxis){
      stroke(color(52,109,241, 70));
@@ -89,7 +92,21 @@ void drawLines(){
    }
    //checkFilterData();
    
+   //draw all rows first
+   for(String row : allRows){
+     for(int i = 1; i < axes.size(); i++){
+       float preX = axes.get(i-1).getXPos();
+       float preY = axes.get(i-1).getYPos(row);  //get Y position based on the orientation of axis
+       float currentX = axes.get(i).getXPos();
+       float currentY = axes.get(i).getYPos(row);
+       
+       line(preX, preY, currentX, currentY);
+     }
+   }
+   
+   //draw selected rows with different Color
    for(String row : selectedRows){
+     stroke(color(255));
      for(int i = 1; i < axes.size(); i++){
        float preX = axes.get(i-1).getXPos();
        float preY = axes.get(i-1).getYPos(row);  //get Y position based on the orientation of axis
@@ -104,6 +121,7 @@ void drawLines(){
 }
 
 void draw(){ // call this function each frame
+  
   background(140);
   drawLines();
   drawAxes();
@@ -112,7 +130,6 @@ void draw(){ // call this function each frame
   }
   updateFilters();
   updataSelectedRows();
-  
   
 }
 
@@ -244,37 +261,7 @@ void updateFilters(){
   //mouseYPos; 
   //boundWidth = mouseX-mouseXPos;
   //boundHeight = mouseY-mouseYPos;
-  
-  ////unify the position of bounding rect
-  //if(boundWidth >0 && boundHeight >0){
-  //  startPointX = mouseXPos;
-  //  startPointY = mouseYPos;
-  //  filterWidth = boundWidth;
-  //  filterHeight = boundHeight;
-  //}
-  
-  //if(boundWidth > 0 && boundHeight <0){
-  //  startPointX = mouseXPos;
-  //  startPointY = mouseYPos + boundHeight;
-  //  filterWidth = boundWidth;
-  //  filterHeight = -boundHeight;
-  //}
-  
-  //if(boundWidth <0 && boundHeight >0){
-  //  startPointX = mouseXPos + boundWidth;
-  //  startPointY = mouseYPos;
-  //  filterWidth = -boundWidth;
-  //  filterHeight = boundHeight;
-  //}
-  
-  //if(boundWidth <0 && boundHeight <0){
-  //  startPointX = mouseXPos + boundWidth;
-  //  startPointY = mouseYPos + boundHeight;
-  //  filterWidth = -boundWidth;
-  //  filterHeight = -boundHeight;
-  //}
-  
-  
+ 
   for(int i = 0; i < axes.size(); i++){
     //if draw from left to right
       if(axes.get(i).getXPos() > startPointX && axes.get(i).getXPos() < startPointX + filterWidth){
@@ -391,5 +378,26 @@ void updateFilters(){
 
 //update 
 void updataSelectedRows(){
-
+  ArrayList<String> allRowsClone = new ArrayList<String>();
+  for(int i = 0; i<allRows.size(); i++){
+    allRowsClone.add(allRows.get(i));
+  }
+  
+  selectedRows = allRowsClone;
+  
+  int size = axes.get(0).getHiddenRows().size();
+  int filterAxis = 0;
+  for(int i = 0; i < axes.size(); i++){
+    axes.get(i).updateHiddenRows();
+    if(axes.get(i).getHiddenRows().size()>size){
+      size = axes.get(i).getHiddenRows().size();
+      filterAxis = i;
+    }
+  }
+  
+  ArrayList<String>  hiddenRows = axes.get(filterAxis).getHiddenRows();
+  for(int i = 0; i < hiddenRows.size(); i++){
+    selectedRows.remove(hiddenRows.get(i));
+  }
+  
 }
