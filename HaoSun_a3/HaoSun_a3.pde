@@ -32,7 +32,7 @@ void setup(){
   size(1200,800);
   smooth();
   surface.setResizable(true);
-  background(220);
+  background(140);
   
   isDraggingAxis = false;
   isFilter = false;
@@ -99,9 +99,9 @@ void drawLines(){
 }
 
 void draw(){ // call this function each frame
-  background(220);
-  drawAxes();
+  background(140);
   drawLines();
+  drawAxes();
   updateSelectedRows();
   
   if(drawBound){

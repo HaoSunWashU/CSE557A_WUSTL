@@ -225,8 +225,8 @@ class Axis{
      //if(isSwap){
      //  xPos = 100.0/1200.0 * width + order * ((1000.0/1200.0 * width)/(this.numAxes-1));
      //}
-     stroke(40);
-     strokeWeight(1);
+     stroke(20);
+     strokeWeight(2);
      textAlign(CENTER);
      float textPercentage = (width/1200.0 + height/800.0)/2.0;
      float textSize = 16 * textPercentage;
@@ -255,7 +255,7 @@ class Axis{
      textAlign(CENTER);
      textSize(14 * textPercentage);
      
-     fill(20);
+     fill(255);
      //tow bounds 
      if(!isFlipped){
        text(filterRange[0].toString(), xPos, 40.0/800.0 * height + 700.0/800.0 * height * ((filterRange[0].floatValue() - min.floatValue())/(max.floatValue()-min.floatValue())));
@@ -293,12 +293,14 @@ class Axis{
      }
      
      rectMode(CORNER);
+     stroke(0);
+     strokeWeight(2);
      //ends
      line(xPos - (4.0/1200.0 * width), 50.0/800.0 * height, xPos + (4.0/1200.0 * width), 50.0/800.0 * height);
      line(xPos - (4.0/1200.0 * width), 750.0/800.0 * height, xPos + (4.0/1200.0 * width), 750.0/800.0 * height);
      
      //filter
-     stroke(120);
+     stroke(220);
      strokeWeight(2);
      fill(160,100);
      //filterRange is the value range for this axis
