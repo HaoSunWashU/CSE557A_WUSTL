@@ -23,7 +23,18 @@ class Axis{
   
   //position
   float axisHeight, xPos, tempX;
-  float[] filterRange;
+  float originalXPos;
+  int i = 0; // for count the times display() is called, when i = 0, that means display() is called first time
+  Number[] filterRange;
+  
+  float getOriginalXPos(){
+    return originalXPos;
+  }
+  
+  void setOriginalXPos(float newXPos){
+    originalXPos = newXPos;
+  }
+  
   
   Axis(String nameForColumn, String[] namesForRows, HashMap<String, Number> values, int numAxes){
     this.nameForColumn = nameForColumn;
@@ -33,7 +44,7 @@ class Axis{
     
     //create supporting variable
     hiddenRows = new ArrayList<String>();
-    filterRange = new float[2];
+    filterRange = new Number[2];
     
     
     //calculate the min and max value in this axis
@@ -63,8 +74,8 @@ class Axis{
   }
     
    //update filter range
-   void changeFilterPosition(float value1, float value2){
-     if(value1 <= value2){
+   void changeFilterPosition(Number value1, Number value2){
+     if(value1.floatValue() <= value2.floatValue()){
        filterRange[0] = value1;
        filterRange[1] = value2;
      }else{
@@ -74,7 +85,7 @@ class Axis{
       
      // check names of rows outside the filter range
      for(String name : namesForRows){
-       if(values.get(name).floatValue() < filterRange[0] || values.get(name).floatValue() > filterRange[1]){
+       if(values.get(name).floatValue() < filterRange[0].floatValue() || values.get(name).floatValue() > filterRange[1].floatValue()){
          hiddenRows.add(name);
        }
      }
@@ -111,6 +122,10 @@ class Axis{
    float getXPos(){
      return xPos;
    }
+   
+   void setXPos(float newXPos){
+     this.xPos = newXPos;
+   }
     
    float getYPos(float value){
      if(!isFlipped){ // up: min;  down: max.
@@ -125,6 +140,10 @@ class Axis{
     
    ArrayList<String> getHiddenRows(){
      return hiddenRows;
+   }
+   
+   boolean isFlipped(){
+     return isFlipped;
    }
    
    //Allow the user to flip the orientation of a dimension
@@ -165,23 +184,54 @@ class Axis{
      }
    }
    
+   Number getMin(){
+     return min;
+   }
+   
+   Number getMax(){
+     return max;
+   }
+   
+   void setFormerSelected(boolean newBool){
+     formerSelected = newBool;
+   }
+   
+   boolean isSwap = false;
+   void setSwap(){
+     isSwap = true;
+   }
+   
    void display(int order){
+     //i++;
      xPos = 100.0/1200.0 * width + order * ((1000.0/1200.0 * width)/(this.numAxes-1));
+     if(isSwap){
+       xPos = 100.0/1200.0 * width + order * ((1000.0/1200.0 * width)/(this.numAxes-1));
+       formerSelected = false;
+     }
+     
+     //if(i==0){
+     //  originalXPos = xPos; //store the original position for exchange position.
+     //}
      if(isSelect){
        xPos = mouseX; 
        tempX = mouseX;
        formerSelected = true;
+       isSwap = false;
      }
      else if(formerSelected){
        xPos = tempX;
-     }
-     stroke(255);
+     } 
+     
+     //if(isSwap){
+     //  xPos = 100.0/1200.0 * width + order * ((1000.0/1200.0 * width)/(this.numAxes-1));
+     //}
+     stroke(40);
      strokeWeight(1);
      textAlign(CENTER);
      float textPercentage = (width/1200.0 + height/800.0)/2.0;
      float textSize = 16 * textPercentage;
      textFont(fontInfo, textSize);
-     fill(255);
+     fill(40);
      
      //line
      line(xPos, 50.0/800.0 * height, xPos, 750.0/800.0 * height);
@@ -192,7 +242,7 @@ class Axis{
        fill(180);    
      }
      else{
-       fill(52,109,241);
+       fill(45, 156, 65);
      }
      stroke(220);
      rectMode(CENTER);
@@ -204,15 +254,33 @@ class Axis{
      //Max and Min
      textAlign(CENTER);
      textSize(14 * textPercentage);
-     text(up.toString(), xPos, 40.0/800.0 * height);
-     text(down.toString(), xPos, 765.0/800.0 * height);
+     
+     fill(20);
+     //tow bounds 
+     if(!isFlipped){
+       text(filterRange[0].toString(), xPos, 40.0/800.0 * height + 700.0/800.0 * height * ((filterRange[0].floatValue() - min.floatValue())/(max.floatValue()-min.floatValue())));
+       text(filterRange[1].toString(), xPos, 765.0/800.0 * height - 700.0/800.0 * height * ((max.floatValue() - filterRange[1].floatValue())/(max.floatValue()-min.floatValue())));
+       
+       //rect(xPos - (4.0/1200.0 * width), 
+       //  50.0/800.0 * height + 700.0/800.0 * height * ((filterRange[0] - min.floatValue())/(max.floatValue()-min.floatValue())), 
+       //  8.0/1200.0 * width,
+       //  700.0/800.0 * height * (filterRange[1] - filterRange[0])/(max.floatValue()-min.floatValue()), 3);
+     }else{
+       text(filterRange[1].toString(), xPos, 40.0/800.0 * height + 700.0/800.0 * height * ((max.floatValue() - filterRange[1].floatValue())/(max.floatValue()-min.floatValue())));
+       text(filterRange[0].toString(), xPos, 765.0/800.0 * height - 700.0/800.0 * height * (filterRange[0].floatValue() - min.floatValue())/(max.floatValue()-min.floatValue()));
+       
+       //rect(xPos - (4.0/1200.0 * width), 
+       //  50.0/800.0 * height + 700.0/800.0 * height * ((max.floatValue() - filterRange[1])/(max.floatValue()-min.floatValue())), 
+       //  8.0/1200.0 * width,
+       //  700.0/800.0 * height * (filterRange[1] - filterRange[0])/(max.floatValue()-min.floatValue()), 3);
+     }
      
      //flip button
      if(mouseX > xPos - width_flipButton/2 && mouseX < xPos + width_flipButton/2 &&
          mouseY > 780.0/800.0 * height - height_flipButton /2 && mouseY < 780.0/800.0 * height + height_flipButton/2){
        fill(180);
      }else{
-       fill(52,109,241);
+       fill(45, 156, 65);
      }
      stroke(220);
      rectMode(CENTER);
@@ -230,21 +298,21 @@ class Axis{
      line(xPos - (4.0/1200.0 * width), 750.0/800.0 * height, xPos + (4.0/1200.0 * width), 750.0/800.0 * height);
      
      //filter
-     stroke(220);
+     stroke(120);
      strokeWeight(2);
-     fill(220,100);
+     fill(160,100);
      //filterRange is the value range for this axis
      
      if(!isFlipped){
        rect(xPos - (4.0/1200.0 * width), 
-         50.0/800.0 * height + 700.0/800.0 * height * ((filterRange[0] - min.floatValue())/(max.floatValue()-min.floatValue())), 
+         50.0/800.0 * height + 700.0/800.0 * height * ((filterRange[0].floatValue() - min.floatValue())/(max.floatValue()-min.floatValue())), 
          8.0/1200.0 * width,
-         700.0/800.0 * height * (filterRange[1] - filterRange[0])/(max.floatValue()-min.floatValue()), 3);
+         700.0/800.0 * height * (filterRange[1].floatValue() - filterRange[0].floatValue())/(max.floatValue()-min.floatValue()), 3);
      }else{
        rect(xPos - (4.0/1200.0 * width), 
-         50.0/800.0 * height + 700.0/800.0 * height * ((max.floatValue() - filterRange[1])/(max.floatValue()-min.floatValue())), 
+         50.0/800.0 * height + 700.0/800.0 * height * ((max.floatValue() - filterRange[1].floatValue())/(max.floatValue()-min.floatValue())), 
          8.0/1200.0 * width,
-         700.0/800.0 * height * (filterRange[1] - filterRange[0])/(max.floatValue()-min.floatValue()), 3);
+         700.0/800.0 * height * (filterRange[1].floatValue() - filterRange[0].floatValue())/(max.floatValue()-min.floatValue()), 3);
      }
    }
 }
