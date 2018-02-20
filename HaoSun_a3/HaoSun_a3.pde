@@ -28,6 +28,11 @@ boolean drawBound = false;
 float boundWidth = 0;
 float boundHeight = 0;
 
+float startPointX;
+float startPointY;
+float filterWidth;
+float filterHeight;
+
 void setup(){
   size(1200,800);
   smooth();
@@ -102,12 +107,13 @@ void draw(){ // call this function each frame
   background(140);
   drawLines();
   drawAxes();
-  updateFilters();
-  updataSelectedRows();
-  
   if(drawBound){
     drawBound();
   }
+  updateFilters();
+  updataSelectedRows();
+  
+  
 }
 
 //Detect mouse motion
@@ -133,6 +139,10 @@ void mousePressed() {
   //If click and bound is drawing before, be false
   if (drawBound) {
     drawBound = false;
+    startPointX = 0;
+    startPointY = 0;
+    filterWidth = 0;
+    filterHeight =0;
   }
 }
 
@@ -143,6 +153,10 @@ void mouseReleased(){
     axes.get(i).setSelect(false);
   }
   drawBound = false;
+  startPointX = 0;
+  startPointY = 0;
+  filterWidth = 0;
+  filterHeight =0;
 }
 
 void mouseDragged() 
@@ -183,6 +197,34 @@ void drawBound(){
   rect(mouseXPos, mouseYPos, boundWidth, boundHeight);
   println(boundWidth);
   println(boundHeight);
+  //unify the position of bounding rect
+  if(boundWidth >0 && boundHeight >0){
+    startPointX = mouseXPos;
+    startPointY = mouseYPos;
+    filterWidth = boundWidth;
+    filterHeight = boundHeight;
+  }
+  
+  if(boundWidth > 0 && boundHeight <0){
+    startPointX = mouseXPos;
+    startPointY = mouseYPos + boundHeight;
+    filterWidth = boundWidth;
+    filterHeight = -boundHeight;
+  }
+  
+  if(boundWidth <0 && boundHeight >0){
+    startPointX = mouseXPos + boundWidth;
+    startPointY = mouseYPos;
+    filterWidth = -boundWidth;
+    filterHeight = boundHeight;
+  }
+  
+  if(boundWidth <0 && boundHeight <0){
+    startPointX = mouseXPos + boundWidth;
+    startPointY = mouseYPos + boundHeight;
+    filterWidth = -boundWidth;
+    filterHeight = -boundHeight;
+  }
 }
 
 //swap two axes based on their order num
@@ -203,71 +245,148 @@ void updateFilters(){
   //boundWidth = mouseX-mouseXPos;
   //boundHeight = mouseY-mouseYPos;
   
+  ////unify the position of bounding rect
+  //if(boundWidth >0 && boundHeight >0){
+  //  startPointX = mouseXPos;
+  //  startPointY = mouseYPos;
+  //  filterWidth = boundWidth;
+  //  filterHeight = boundHeight;
+  //}
+  
+  //if(boundWidth > 0 && boundHeight <0){
+  //  startPointX = mouseXPos;
+  //  startPointY = mouseYPos + boundHeight;
+  //  filterWidth = boundWidth;
+  //  filterHeight = -boundHeight;
+  //}
+  
+  //if(boundWidth <0 && boundHeight >0){
+  //  startPointX = mouseXPos + boundWidth;
+  //  startPointY = mouseYPos;
+  //  filterWidth = -boundWidth;
+  //  filterHeight = boundHeight;
+  //}
+  
+  //if(boundWidth <0 && boundHeight <0){
+  //  startPointX = mouseXPos + boundWidth;
+  //  startPointY = mouseYPos + boundHeight;
+  //  filterWidth = -boundWidth;
+  //  filterHeight = -boundHeight;
+  //}
+  
+  
   for(int i = 0; i < axes.size(); i++){
     //if draw from left to right
-    if(boundWidth > 0){
-      if(axes.get(i).getXPos() > mouseXPos && axes.get(i).getXPos() < mouseXPos + boundWidth){
-        //if draw from up to down
-        if(boundHeight > 0){
+      if(axes.get(i).getXPos() > startPointX && axes.get(i).getXPos() < startPointX + filterWidth){
           if(!axes.get(i).isFlipped()){ // if not flipped; up: min; down: max.
             //condition1 #correct
-            if(mouseYPos/800.0 * height <= 50.0/800.0 * height && 
-                (mouseYPos+boundHeight)/800.0 * height > 50.0/800.0 * height &&
-                (mouseYPos+boundHeight)/800.0 * height < 750.0/800.0 * height){
-              Number newFilter2 = (int)((axes.get(i).getMax().floatValue() - (((750.0/800.0 * height - (mouseYPos+boundHeight)/800.0 * height) / (700.0/800.0 * height))
+            if(startPointY/800.0 * height <= 50.0/800.0 * height && 
+                (startPointY+filterHeight)/800.0 * height > 50.0/800.0 * height &&
+                (startPointY+filterHeight)/800.0 * height < 750.0/800.0 * height){
+              Number newFilter2 = (int)((axes.get(i).getMax().floatValue() - (((750.0/800.0 * height - (startPointY+filterHeight)/800.0 * height) / (700.0/800.0 * height))
                 * (axes.get(i).getMax().floatValue() - axes.get(i).getMin().floatValue())))*10)/10.0;
               axes.get(i).changeFilterPosition(axes.get(i).getMin(), newFilter2);
             }
             //condition2 #correct
-            if(mouseYPos/800.0 * height > 50.0/800.0 * height && (mouseYPos+boundHeight)/800.0 * height > 50.0/800.0 * height &&
-                (mouseYPos+boundHeight)/800.0 * height < 750.0/800.0 * height){
-              Number newFilter1 = (int)((axes.get(i).getMin().floatValue() + ((mouseYPos/800.0 * height - 50.0/800.0 * height) / (700.0/800.0 * height))
+            if(startPointY/800.0 * height > 50.0/800.0 * height && (startPointY+filterHeight)/800.0 * height > 50.0/800.0 * height &&
+                (startPointY+filterHeight)/800.0 * height < 750.0/800.0 * height){
+              Number newFilter1 = (int)((axes.get(i).getMin().floatValue() + ((startPointY/800.0 * height - 50.0/800.0 * height) / (700.0/800.0 * height))
                 * (axes.get(i).getMax().floatValue() - axes.get(i).getMin().floatValue()))*10)/10.0;
-              Number newFilter2 = (int)((axes.get(i).getMax().floatValue() - (((750.0/800.0 * height - (mouseYPos+boundHeight)/800.0 * height) / (700.0/800.0 * height))
+              Number newFilter2 = (int)((axes.get(i).getMax().floatValue() - (((750.0/800.0 * height - (startPointY+filterHeight)/800.0 * height) / (700.0/800.0 * height))
                 * (axes.get(i).getMax().floatValue() - axes.get(i).getMin().floatValue())))*10)/10.0;
               axes.get(i).changeFilterPosition(newFilter1, newFilter2);
             }
             //condition3 #correct
-            if(mouseYPos/800.0 * height > 50.0/800.0 * height && mouseYPos/800.0 * height < 750.0/800.0 * height && (mouseYPos+boundHeight)/800.0 * height > 750.0/800.0 * height){
-              Number newFilter1 = (int)((axes.get(i).getMin().floatValue() + ((mouseYPos/800.0 * height - 50.0/800.0 * height) / (700.0/800.0 * height))
+            if(startPointY/800.0 * height > 50.0/800.0 * height && startPointY/800.0 * height < 750.0/800.0 * height && (startPointY+filterHeight)/800.0 * height > 750.0/800.0 * height){
+              Number newFilter1 = (int)((axes.get(i).getMin().floatValue() + ((startPointY/800.0 * height - 50.0/800.0 * height) / (700.0/800.0 * height))
                 * (axes.get(i).getMax().floatValue() - axes.get(i).getMin().floatValue()))*10)/10.0;
               axes.get(i).changeFilterPosition(newFilter1, axes.get(i).getMax());
             }
           }else{ // if flipped  up: max; down: min
             //condition1 #correct
-            if(mouseYPos/800.0 * height <= 50.0/800.0 * height && 
-                (mouseYPos+boundHeight)/800.0 * height > 50.0/800.0 * height &&
-                (mouseYPos+boundHeight)/800.0 * height < 750.0/800.0 * height){
-              Number newFilter2 = (int)((axes.get(i).getMin().floatValue() + (((750.0/800.0 * height - (mouseYPos+boundHeight)/800.0 * height) / (700.0/800.0 * height))
+            if(startPointY/800.0 * height <= 50.0/800.0 * height && 
+                (startPointY+filterHeight)/800.0 * height > 50.0/800.0 * height &&
+                (startPointY+filterHeight)/800.0 * height < 750.0/800.0 * height){
+              Number newFilter2 = (int)((axes.get(i).getMin().floatValue() + (((750.0/800.0 * height - (startPointY+filterHeight)/800.0 * height) / (700.0/800.0 * height))
                 * (axes.get(i).getMax().floatValue() - axes.get(i).getMin().floatValue())))*10)/10.0;
               axes.get(i).changeFilterPosition(axes.get(i).getMax(), newFilter2);
             }
             //condition2 
-            if(mouseYPos/800.0 * height > 50.0/800.0 * height && (mouseYPos+boundHeight)/800.0 * height > 50.0/800.0 * height &&
-                (mouseYPos+boundHeight)/800.0 * height < 750.0/800.0 * height){
+            if(startPointY/800.0 * height > 50.0/800.0 * height && (startPointY+filterHeight)/800.0 * height > 50.0/800.0 * height &&
+                (startPointY+filterHeight)/800.0 * height < 750.0/800.0 * height){
               //upbound
-              Number newFilter1 = (int)((axes.get(i).getMax().floatValue() - ((mouseYPos/800.0 * height - 50.0/800.0 * height) / (700.0/800.0 * height))
+              Number newFilter1 = (int)((axes.get(i).getMax().floatValue() - ((startPointY/800.0 * height - 50.0/800.0 * height) / (700.0/800.0 * height))
                 * (axes.get(i).getMax().floatValue() - axes.get(i).getMin().floatValue()))*10)/10.0;
               //lowbound
-              Number newFilter2 = (int)((axes.get(i).getMin().floatValue() + (((750.0/800.0 * height - (mouseYPos+boundHeight)/800.0 * height) / (700.0/800.0 * height))
+              Number newFilter2 = (int)((axes.get(i).getMin().floatValue() + (((750.0/800.0 * height - (startPointY+filterHeight)/800.0 * height) / (700.0/800.0 * height))
                 * (axes.get(i).getMax().floatValue() - axes.get(i).getMin().floatValue())))*10)/10.0;
               axes.get(i).changeFilterPosition(newFilter1, newFilter2);
             }
             //condition3
-            if(mouseYPos/800.0 * height > 50.0/800.0 * height && mouseYPos/800.0 * height < 750.0/800.0 * height && (mouseYPos+boundHeight)/800.0 * height > 750.0/800.0 * height){
-              Number newFilter1 = (int)((axes.get(i).getMax().floatValue() - ((mouseYPos/800.0 * height - 50.0/800.0 * height) / (700.0/800.0 * height))
+            if(startPointY/800.0 * height > 50.0/800.0 * height && startPointY/800.0 * height < 750.0/800.0 * height && (startPointY+filterHeight)/800.0 * height > 750.0/800.0 * height){
+              Number newFilter1 = (int)((axes.get(i).getMax().floatValue() - ((startPointY/800.0 * height - 50.0/800.0 * height) / (700.0/800.0 * height))
                 * (axes.get(i).getMax().floatValue() - axes.get(i).getMin().floatValue()))*10)/10.0;
               axes.get(i).changeFilterPosition(newFilter1, axes.get(i).getMin());
             }
           }
-        }else if(boundHeight < 0){
-          
-        }
+        //}else if(boundHeight < 0){
+        //  if(!axes.get(i).isFlipped()){ // if not flipped; up: min; down: max.
+        //    //condition1 #correct
+        //    if(mouseYPos/800.0 * height <= 50.0/800.0 * height && 
+        //        (mouseYPos+boundHeight)/800.0 * height > 50.0/800.0 * height &&
+        //        (mouseYPos+boundHeight)/800.0 * height < 750.0/800.0 * height){
+        //      Number newFilter2 = (int)((axes.get(i).getMax().floatValue() - (((750.0/800.0 * height - (mouseYPos+boundHeight)/800.0 * height) / (700.0/800.0 * height))
+        //        * (axes.get(i).getMax().floatValue() - axes.get(i).getMin().floatValue())))*10)/10.0;
+        //      axes.get(i).changeFilterPosition(axes.get(i).getMin(), newFilter2);
+        //    }
+        //    //condition2 #correct
+        //    if(mouseYPos/800.0 * height > 50.0/800.0 * height && (mouseYPos+boundHeight)/800.0 * height > 50.0/800.0 * height &&
+        //        (mouseYPos+boundHeight)/800.0 * height < 750.0/800.0 * height){
+        //      Number newFilter1 = (int)((axes.get(i).getMin().floatValue() + ((mouseYPos/800.0 * height - 50.0/800.0 * height) / (700.0/800.0 * height))
+        //        * (axes.get(i).getMax().floatValue() - axes.get(i).getMin().floatValue()))*10)/10.0;
+        //      Number newFilter2 = (int)((axes.get(i).getMax().floatValue() - (((750.0/800.0 * height - (mouseYPos+boundHeight)/800.0 * height) / (700.0/800.0 * height))
+        //        * (axes.get(i).getMax().floatValue() - axes.get(i).getMin().floatValue())))*10)/10.0;
+        //      axes.get(i).changeFilterPosition(newFilter1, newFilter2);
+        //    }
+        //    //condition3 #correct
+        //    if(mouseYPos/800.0 * height > 50.0/800.0 * height && mouseYPos/800.0 * height < 750.0/800.0 * height && (mouseYPos+boundHeight)/800.0 * height > 750.0/800.0 * height){
+        //      Number newFilter1 = (int)((axes.get(i).getMin().floatValue() + ((mouseYPos/800.0 * height - 50.0/800.0 * height) / (700.0/800.0 * height))
+        //        * (axes.get(i).getMax().floatValue() - axes.get(i).getMin().floatValue()))*10)/10.0;
+        //      axes.get(i).changeFilterPosition(newFilter1, axes.get(i).getMax());
+        //    }
+        //  }else{ // if flipped  up: max; down: min
+        //    //condition1 #correct
+        //    if(mouseYPos/800.0 * height <= 50.0/800.0 * height && 
+        //        (mouseYPos+boundHeight)/800.0 * height > 50.0/800.0 * height &&
+        //        (mouseYPos+boundHeight)/800.0 * height < 750.0/800.0 * height){
+        //      Number newFilter2 = (int)((axes.get(i).getMin().floatValue() + (((750.0/800.0 * height - (mouseYPos+boundHeight)/800.0 * height) / (700.0/800.0 * height))
+        //        * (axes.get(i).getMax().floatValue() - axes.get(i).getMin().floatValue())))*10)/10.0;
+        //      axes.get(i).changeFilterPosition(axes.get(i).getMax(), newFilter2);
+        //    }
+        //    //condition2 
+        //    if(mouseYPos/800.0 * height > 50.0/800.0 * height && (mouseYPos+boundHeight)/800.0 * height > 50.0/800.0 * height &&
+        //        (mouseYPos+boundHeight)/800.0 * height < 750.0/800.0 * height){
+        //      //upbound
+        //      Number newFilter1 = (int)((axes.get(i).getMax().floatValue() - ((mouseYPos/800.0 * height - 50.0/800.0 * height) / (700.0/800.0 * height))
+        //        * (axes.get(i).getMax().floatValue() - axes.get(i).getMin().floatValue()))*10)/10.0;
+        //      //lowbound
+        //      Number newFilter2 = (int)((axes.get(i).getMin().floatValue() + (((750.0/800.0 * height - (mouseYPos+boundHeight)/800.0 * height) / (700.0/800.0 * height))
+        //        * (axes.get(i).getMax().floatValue() - axes.get(i).getMin().floatValue())))*10)/10.0;
+        //      axes.get(i).changeFilterPosition(newFilter1, newFilter2);
+        //    }
+        //    //condition3
+        //    if(mouseYPos/800.0 * height > 50.0/800.0 * height && mouseYPos/800.0 * height < 750.0/800.0 * height && (mouseYPos+boundHeight)/800.0 * height > 750.0/800.0 * height){
+        //      Number newFilter1 = (int)((axes.get(i).getMax().floatValue() - ((mouseYPos/800.0 * height - 50.0/800.0 * height) / (700.0/800.0 * height))
+        //        * (axes.get(i).getMax().floatValue() - axes.get(i).getMin().floatValue()))*10)/10.0;
+        //      axes.get(i).changeFilterPosition(newFilter1, axes.get(i).getMin());
+        //    }
+        //  }
       }
-    }else if(boundWidth < 0){
-    
-    }
   }
+  startPointX = 0;
+  startPointY = 0;
+  filterWidth = 0;
+  filterHeight =0;
 }
 
 //update 
