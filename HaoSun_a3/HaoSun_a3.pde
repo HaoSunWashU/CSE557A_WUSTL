@@ -38,7 +38,7 @@ void setup(){
   size(1200,800);
   smooth();
   surface.setResizable(true);
-  background(140);
+  background(100);
   
   isDraggingAxis = false;
   isFilter = false;
@@ -94,11 +94,15 @@ void drawLines(){
    
    //draw all rows first
    for(String row : allRows){
+     int colorPos;
+     float yPos_0 = axes.get(0).getYPos(row);
+     //colorPos = (int)(((yPos_0/800.0 * height - 50.0/800.0 * height) / (700.0/800.0 * height) * 255)/800.0 * height);
+     colorPos = (int)(((yPos_0/800.0 * height - 50.0/800.0 * height) / (700.0/800.0 * height) * 255)/800.0 * height);
      if(isDraggingAxis){
-       stroke(color(52,109,241, 50));
-     }else{
-       stroke(color(52,109,241, 70));
-     }
+         stroke(color(colorPos,109,241, 50));
+       }else{
+         stroke(color(colorPos,109,241, 70));
+       }
      for(int i = 1; i < axes.size(); i++){
        float preX = axes.get(i-1).getXPos();
        float preY = axes.get(i-1).getYPos(row);  //get Y position based on the orientation of axis
@@ -111,11 +115,14 @@ void drawLines(){
    
    //draw selected rows with different Color
    for(String row : selectedRows){
+     int colorPos;
+     float yPos_0 = axes.get(0).getYPos(row);
+     colorPos = (int)((yPos_0/800.0 * height - 50.0/800.0 * height) / (700.0/800.0 * height) * 255);
      if(isDraggingAxis){
-       stroke(color(52,109,241, 70));
-     }else{
-       stroke(color(52,109,241));
-     }
+         stroke(color(colorPos,109,241, 80));
+       }else{
+         stroke(color(colorPos,109,241));
+       }
      for(int i = 1; i < axes.size(); i++){
        float preX = axes.get(i-1).getXPos();
        float preY = axes.get(i-1).getYPos(row);  //get Y position based on the orientation of axis
@@ -131,7 +138,7 @@ void drawLines(){
 
 void draw(){ // call this function each frame
   
-  background(140);
+  background(100);
   drawLines();
   drawAxes();
   if(drawBound){
