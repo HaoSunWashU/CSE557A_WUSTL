@@ -50,7 +50,7 @@ void setup(){
   print(dataReader.getNumColumns());
   
   //debug
-  axes.get(0).setFlip();
+  //axes.get(0).setFlip();
 }
 
 void loadData(){
@@ -85,15 +85,20 @@ void drawAxes(){
 void drawLines(){
    strokeWeight(2);
    
-   if(isDraggingAxis){
-     stroke(color(52,109,241, 70));
-   }else{
-     stroke(color(52,109,241));
-   }
+   //if(isDraggingAxis){
+   //  stroke(color(52,109,241, 50));
+   //}else{
+   //  stroke(color(52,109,241));
+   //}
    //checkFilterData();
    
    //draw all rows first
    for(String row : allRows){
+     if(isDraggingAxis){
+       stroke(color(52,109,241, 50));
+     }else{
+       stroke(color(52,109,241, 70));
+     }
      for(int i = 1; i < axes.size(); i++){
        float preX = axes.get(i-1).getXPos();
        float preY = axes.get(i-1).getYPos(row);  //get Y position based on the orientation of axis
@@ -106,7 +111,11 @@ void drawLines(){
    
    //draw selected rows with different Color
    for(String row : selectedRows){
-     stroke(color(255));
+     if(isDraggingAxis){
+       stroke(color(52,109,241, 70));
+     }else{
+       stroke(color(52,109,241));
+     }
      for(int i = 1; i < axes.size(); i++){
        float preX = axes.get(i-1).getXPos();
        float preY = axes.get(i-1).getYPos(row);  //get Y position based on the orientation of axis
@@ -385,19 +394,18 @@ void updataSelectedRows(){
   
   selectedRows = allRowsClone;
   
-  int size = axes.get(0).getHiddenRows().size();
-  int filterAxis = 0;
+  //int size = axes.get(0).getHiddenRows().size();
+  //int filterAxis = 0;
   for(int i = 0; i < axes.size(); i++){
     axes.get(i).updateHiddenRows();
-    if(axes.get(i).getHiddenRows().size()>size){
-      size = axes.get(i).getHiddenRows().size();
-      filterAxis = i;
+    for(int j = 0; j < axes.get(i).getHiddenRows().size(); j++){
+      selectedRows.remove(axes.get(i).getHiddenRows().get(j));
     }
   }
   
-  ArrayList<String>  hiddenRows = axes.get(filterAxis).getHiddenRows();
-  for(int i = 0; i < hiddenRows.size(); i++){
-    selectedRows.remove(hiddenRows.get(i));
-  }
+  //ArrayList<String>  hiddenRows = axes.get(filterAxis).getHiddenRows();
+  //for(int i = 0; i < hiddenRows.size(); i++){
+  //  selectedRows.remove(hiddenRows.get(i));
+  //}
   
 }
