@@ -41,7 +41,7 @@ void setup(){
   size(1200,800);
   smooth();
   surface.setResizable(true);
-  background(100);
+  background(60);
   
   isDraggingAxis = false;
   isFilter = false;
@@ -88,6 +88,7 @@ void drawAxes(){
 
 //based on the data in each row of selectedRows, draw line row by row
 void drawLines(){
+   hoveringRows.clear();
    strokeWeight(2);
    
    //if(isDraggingAxis){
@@ -140,7 +141,8 @@ void drawLines(){
        float preY = axes.get(i-1).getYPos(row);  //get Y position based on the orientation of axis
        float currentX = axes.get(i).getXPos();
        float currentY = axes.get(i).getYPos(row);
-       //if(mouseX)
+       if(mouseX > preX && mouseX < currentX && Math.abs((mouseY-preY)/(mouseX-preX)-(currentY-preY)/(currentX-preX))<0.1)
+         hoveringRows.add(row);
        line(preX, preY, currentX, currentY);
      }
    }
@@ -148,16 +150,58 @@ void drawLines(){
    //unselectedRows
 }
 
+void drawHoveringRowsInfo(){
+  
+  stroke(255);
+  strokeWeight(2);
+  //draw highlighted line for hovering line
+  for(int j=0; j<hoveringRows.size();j++){
+    for(int i = 1; i < axes.size(); i++){
+       float preX = axes.get(i-1).getXPos();
+       float preY = axes.get(i-1).getYPos(hoveringRows.get(j));  //get Y position based on the orientation of axis
+       float currentX = axes.get(i).getXPos();
+       float currentY = axes.get(i).getYPos(hoveringRows.get(j));
+       line(preX, preY, currentX, currentY);
+    }
+  }
+  //draw values
+  for(int j=0; j<hoveringRows.size();j++){
+    for(int i=0; i<axes.size(); i++){
+      float currentX = axes.get(i).getXPos();
+      float currentY = axes.get(i).getYPos(hoveringRows.get(j));
+      fill(220);
+      //stroke(220);
+      noStroke();
+      textSize(18*(width/1200.0 + height/800.0)/2.0);
+      rectMode(CENTER);
+      rect(currentX,currentY - 5.0/800*height,40.0/1200.0*width, 25.0/800.0*height,5.0*(width/1200.0 + height/800.0)/2.0);
+      fill(226, 44, 41);
+      text(axes.get(i).getValue(hoveringRows.get(j)).toString(),currentX,currentY);
+    }
+  }
+  
+  //fill(45, 156, 65);
+  fill(255);
+  textSize(18*(width/1200.0 + height/800.0)/2.0);
+  text(hoveringRows.get(0), mouseX, mouseY);
+         
+         
+
+}
 void draw(){ // call this function each frame
   
-  background(100);
-  drawLines();
+  background(60);
   drawAxes();
+  drawLines();
+  if(hoveringRows.size()!=0){
+    drawHoveringRowsInfo();
+  }
   if(drawBound){
     drawBound();
   }
   updateFilters();
   updataSelectedRows();
+  
   
 }
 
