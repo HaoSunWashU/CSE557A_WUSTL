@@ -1,3 +1,4 @@
+//adapted and fixed from github
 class DataReader {
   Table table;
   int numRows, numColumns;

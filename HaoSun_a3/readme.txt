@@ -12,3 +12,11 @@ Including GP: Games Played; MIN: Minutes Played; PTS: Points; FG%: Field Goal Pe
 
 4. 
 
+
+PS: 
+basic functions instruction:
+1. By pressing top green button and drag to change the order of axis, and change the position slightly;
+2. By draging mouse to draw an orange bound in any directions to filter the axes;
+3. Mouse hovering will only show information of filtered axes;
+4. By clicking the bottom green button to flip the axis。 
+
