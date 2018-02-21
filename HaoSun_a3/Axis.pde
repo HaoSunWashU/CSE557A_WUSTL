@@ -1,3 +1,4 @@
+// adapted and fixed from github
 class Axis{
   //data
   HashMap<String, Number> values;         //get value through name. <String, name>
@@ -33,6 +34,10 @@ class Axis{
   
   void setOriginalXPos(float newXPos){
     originalXPos = newXPos;
+  }
+  
+  Number getValue(String row){
+    return values.get(row);
   }
   
   
@@ -82,13 +87,8 @@ class Axis{
        filterRange[0] = value2;
        filterRange[1] = value1;
      }
-      
-     // check names of rows outside the filter range
-     for(String name : namesForRows){
-       if(values.get(name).floatValue() < filterRange[0].floatValue() || values.get(name).floatValue() > filterRange[1].floatValue()){
-         hiddenRows.add(name);
-       }
-     }
+     //when filter range changed, update the hidden rows
+     updateHiddenRows();
    }
     
    void setSelect(boolean isSelect){ 
@@ -107,6 +107,7 @@ class Axis{
      return this.isFilter;
    }
    
+   //no use
    void removeFilter(){
      setFilter(false);
      hiddenRows.clear();
@@ -196,9 +197,21 @@ class Axis{
      formerSelected = newBool;
    }
    
+   //no use
    boolean isSwap = false;
    void setSwap(){
      isSwap = true;
+   }
+   
+   //update hidden rows
+   void updateHiddenRows(){
+     // check names of rows outside the filter range
+     hiddenRows.clear();
+     for(String name : namesForRows){
+       if(values.get(name).floatValue() < filterRange[0].floatValue() || values.get(name).floatValue() > filterRange[1].floatValue()){
+         hiddenRows.add(name);
+       }
+     }
    }
    
    void display(int order){
@@ -219,7 +232,7 @@ class Axis{
        isSwap = false;
      }
      else if(formerSelected){
-       xPos = tempX;
+       xPos = tempX/1200.0 * width;
      } 
      
      //if(isSwap){
@@ -246,7 +259,7 @@ class Axis{
      }
      stroke(220);
      rectMode(CENTER);
-     rect(xPos, 13.0/800.0 * height, width_titleButton, height_titleButton, 5.0/1200.0 * width);
+     rect(xPos, 13.0/800.0 * height, width_titleButton/1200.0 * width, height_titleButton/800.0 * height, 5.0/1200.0 * width);
      fill(255);
      text(nameForColumn, xPos, 20.0/800.0*height);
      

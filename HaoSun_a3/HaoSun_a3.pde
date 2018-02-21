@@ -28,11 +28,14 @@ boolean isFilter;
 boolean drawBound = false;
 float boundWidth = 0;
 float boundHeight = 0;
-
 float startPointX;
 float startPointY;
 float filterWidth;
 float filterHeight;
+
+//hovering
+boolean isHovering = false;
+ArrayList<String> hoveringRows;
 
 void setup(){
   size(1200,800);
@@ -49,6 +52,8 @@ void setup(){
   initializeAxes();
   print(dataReader.getNumColumns());
   
+  
+  hoveringRows = new ArrayList<String>();
   //debug
   //axes.get(0).setFlip();
 }
@@ -94,14 +99,16 @@ void drawLines(){
    
    //draw all rows first
    for(String row : allRows){
-     int colorPos;
-     float yPos_0 = axes.get(0).getYPos(row);
+     Number colorPos;
+     //float yPos_0 = axes.get(0).getYPos(row);
+     colorPos = axes.get(0).getValue(row);
+     colorPos = ((colorPos.floatValue() - axes.get(0).getMin().floatValue())/(axes.get(0).getMax().floatValue()-axes.get(0).getMin().floatValue())) * 255;
      //colorPos = (int)(((yPos_0/800.0 * height - 50.0/800.0 * height) / (700.0/800.0 * height) * 255)/800.0 * height);
-     colorPos = (int)(((yPos_0/800.0 * height - 50.0/800.0 * height) / (700.0/800.0 * height) * 255)/800.0 * height);
+     //colorPos = (int)((yPos_0/800.0 * height - 50.0/800.0 * height) / (700.0/800.0 * height) * 255);
      if(isDraggingAxis){
-         stroke(color(colorPos,109,241, 50));
+         stroke(color(colorPos.intValue(),109,241, 50));
        }else{
-         stroke(color(colorPos,109,241, 70));
+         stroke(color(colorPos.intValue(),109,241, 70));
        }
      for(int i = 1; i < axes.size(); i++){
        float preX = axes.get(i-1).getXPos();
@@ -115,20 +122,25 @@ void drawLines(){
    
    //draw selected rows with different Color
    for(String row : selectedRows){
-     int colorPos;
-     float yPos_0 = axes.get(0).getYPos(row);
-     colorPos = (int)((yPos_0/800.0 * height - 50.0/800.0 * height) / (700.0/800.0 * height) * 255);
+     Number colorPos;
+     //float yPos_0 = axes.get(0).getYPos(row);
+     colorPos = axes.get(0).getValue(row);
+     colorPos = ((colorPos.floatValue() - axes.get(0).getMin().floatValue())/(axes.get(0).getMax().floatValue()-axes.get(0).getMin().floatValue())) * 255;
+     //debug
+     //int colorPos;
+     //float yPos_0 = axes.get(0).getYPos(row);
+     //colorPos = (int)((yPos_0/800.0 * height - 50.0/800.0 * height) / (700.0/800.0 * height) * 255);
      if(isDraggingAxis){
-         stroke(color(colorPos,109,241, 80));
+         stroke(color(colorPos.intValue(),109,241, 80));
        }else{
-         stroke(color(colorPos,109,241));
+         stroke(color(colorPos.intValue(),109,241));
        }
      for(int i = 1; i < axes.size(); i++){
        float preX = axes.get(i-1).getXPos();
        float preY = axes.get(i-1).getYPos(row);  //get Y position based on the orientation of axis
        float currentX = axes.get(i).getXPos();
        float currentY = axes.get(i).getYPos(row);
-       
+       //if(mouseX)
        line(preX, preY, currentX, currentY);
      }
    }
