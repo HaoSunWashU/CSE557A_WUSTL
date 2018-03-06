@@ -1,0 +1,11 @@
+Interactions:
+1) When mouse is hovering on a node, show the information of this node and highlight nodes and links having connection with that node;
+2) Click a node and highlight the nodes and links within the same group of clicked node, and Click space area to deselect those nodes and links;
+3) Zoom the whole graph by scroll the mouse wheel;
+4) Move the whole graph by dragging the mouse in the space;
+5) Filter a specific 
+
+
+Interactions I have realized:
+1) zoom;
+2) When mouse is hovering on a node, highlight links connected to this node and nodes within the same group.

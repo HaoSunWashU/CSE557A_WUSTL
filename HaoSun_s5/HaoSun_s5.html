@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>grid visualization</title>
+        <script src="https://d3js.org/d3.v4.js"></script>
+
+        <style type="text/css">
+            /*for displaying information at the location of mouse*/
+            .tooltip {  
+            position: absolute;
+            width: 200px;
+            height: 28px;
+            pointer-events: none;
+        }
+        </style>
+    </head>
+    <body>
+        <script type="text/javascript">
+            //set the scale of graph
+            var margin = {top: 20, right: 20, bottom: 30, left: 40},
+                width = 1000 - margin.left - margin.right,
+                height = 800 - margin.top - margin.bottom;
+            var svgWidth = width + margin.left + margin.right;  //1000
+            var svgHeight = height + margin.top + margin.bottom; // 800
+
+            // var width = 800;
+            // var height = 800;
+
+            // setup x y
+            var idValue = function(d) { return d.id;}, //get x value
+                xScale = d3.scaleLinear().range([0, width]), // Scale the data elements
+                yScale = d3.scaleLinear().range([0, height]),
+                xMap = function(d) { return 10 * xScale(parseInt(idValue(d)/10)) + 50;}, // display value
+                yMap = function(d) { return yScale(parseInt(idValue(d)%10)/10) + 20;},
+                xAxis = d3.axisBottom(xScale);
+
+            //setup color for sex
+            var cValue = function(d) {return d.group;};
+            var color = d3.scaleOrdinal(d3.schemeCategory10);
+
+            // var strokeColor = function(d) {
+            //     if(d.test == "neg")
+            //         return "#222";
+            //     else
+            //         return "#FFFFFF";
+            // };
+
+            //append the svg object to the body of the page, append a 'group' element to 'svg'
+            //moves the 'group' element to the top left margin
+            var svg = d3.select("body").append("svg")
+                .attr("width", svgWidth)
+                .attr("height", svgHeight)
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            d3.select("body").append("svg").attr("id", "instruction").attr("width", svgWidth).attr("height", 200).append("circle")
+                .attr("r", 20).attr("cx", 50).attr("cy", 50).style("fill", "fb559d");
+
+            d3.select("#instruction").append("text").attr("x", 90).attr("y", 50).text("Healthy");   
+
+            d3.select("#instruction").append("circle").attr("r", 20).attr("cx", 50).attr("cy", 100).style("fill", "#4cd4b1");
+
+            d3.select("#instruction").append("text").attr("x", 90).attr("y", 100).text("Disease");   
+
+            d3.select("#instruction").append("circle").attr("r", 20).attr("cx", 50).attr("cy", 150).style("fill", "#FFFFFF")
+                .style("stroke","#222").attr("stroke-width", 4);
+
+            d3.select("#instruction").append("text").attr("x", 90).attr("y", 150).text("Test: neg"); 
+
+            // add the tooltip area to the webpage
+            var tooltip = d3.select("body").append("div")
+                .attr("class", "tooltip")
+                .style("opacity", 0);
+
+            //load data
+            d3.csv("https://raw.githubusercontent.com/MayHoo/CSE557_a2/master/s5data.csv", function(error, data) {
+                if(error) throw error;
+
+                //get data one by one
+                data.forEach(function(d) {
+                    d.id = +d.id;
+                    d.group = d.group;
+                    d.test = d.test;
+                });
+
+                //scale the range of data
+                xScale.domain([0, d3.max(data, function(d) {return d.id+1;})]);
+                // yScale.domain([0, d3.max(data, function(d) {return d.id%10;})]);
+
+                // x-axis
+                svg.append("g")
+                    .attr("class", "x axis")
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(xAxis)
+                    .append("text")
+                    .attr("class", "label")
+                    .attr("x", width)
+                    .attr("y", -6)
+                    .style("text-anchor", "end");
+
+    
+                var cx = xMap;
+                var cy = yMap;
+                // draw dots
+                svg.selectAll(".dot")
+                    .data(data)
+                    .enter().append("circle")
+                    .attr("class", "dot")
+                    .attr("r", 30)
+                    .attr("cx", cx)  // value in x axis
+                    .attr("cy", cy)
+                    .style("stroke", function(d) {if(d.test == "neg") return "#222";
+                    else return "#FFFFFF";}).attr("stroke-width", 6)
+                    .style("fill", function(d) {if(d.group == "healthy") return "fb559d";
+                    else return "#4cd4b1";})
+                    .on("mouseover", function(d) {
+                        tooltip.transition()
+                            .duration(200)
+                            .style("opacity", .9);
+                        tooltip.html(d.group + " (id:" + idValue(d) + ", " + d.test + ")")
+                            .style("left", (d3.event.pageX + 5) + "px")
+                            .style("top", (d3.event.pageY - 28) + "px");
+                    })
+                    .on("mouseout", function(d) {
+                        tooltip.transition()
+                            .duration(500)
+                            .style("opacity", 0);
+                    });
+
+                // svg.append("text").attr("x", cx).attr("y", cy).style("fill", "white").text("-");
+
+                
+            });
+           // d3.select("body").append("circle").attr("r", 30).style("stroke", "#222")
+        </script>
+
+
+    </body>
+</html>

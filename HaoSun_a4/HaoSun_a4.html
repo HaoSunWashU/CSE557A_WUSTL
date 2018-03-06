@@ -1,0 +1,690 @@
+<!-- Author: Hao Sun 2018 WUSTL-->
+
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>US Presidential Elections from 1940 to 2016</title>
+	<script src="https://d3js.org/d3.v4.min.js"></script>
+	<!-- d3.tip
+	Copyright (c) 2013 Justin Palmer
+	Tooltips for d3.js SVG visualizations -->
+	<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+
+	<style>
+		div.tooltip{
+			position: absolute;
+			width: 260px;
+			height: 180px;
+			padding: 2px;
+			border: 0px;
+			text-align: center; 
+			background-color: #abf1c3;
+			border-radius: 10px;
+			pointer-events: none;
+		}
+
+		#color_coding{
+			float: left;
+			/*width: 75%;*/
+			/*position: absolute;*/
+		}
+
+		#map{
+			float: left;
+			/*width: 75%;*/
+			/*position: absolute;*/
+		}
+		#image_area{
+			text-align: center;
+			/*background:#666;*/
+			float:right;
+
+			/*width:25%;*/
+			overflow:hidden;
+			position: absolute;
+		}
+
+	</style>
+</head>
+<body>
+	<script type="text/javascript">
+		// create header
+		d3.select("body").append("h1").text("US Presidential Elections from 1940 to 2016").style("font-family", "Arial").style("Color", "black");
+
+		var width = 1200;
+		var width_map = 950;
+		var height = 600;
+
+		//store csv file name and president image, following is the default setting
+		var csv_name = "election-results-1940.csv";
+		var president_portrait = "1940.jpg";
+		// var isDefault = true; //default setting without user selection
+		//########## TimeLine ##########
+		var timeline = d3.select("body").append("svg").attr("width", width).attr("height", 60);
+
+		// var circle_1940, circle_1944, circle_1948, circle_1952, circle_1956, circle_1960, circle_1964, circle_1968,
+		// circle_1972, circle_1976, circle_1980, circle_1988, circle_1992, circle_1996, circle_2000, circle_2004,
+		// circle_2008, circle_2012, circle_2016;
+		
+		//draw dashed line
+		timeline.append("line").attr("x1",0).attr("x2", width).attr("y1", 20).attr("y2", 20).style("stroke-dasharray", ("5, 5")).style("stroke", "gray").style("stroke-width", 3);
+
+		//draw circles and text. Step 62, start 1200 - 62*19 = 22; blue: #185dd1 red: #ce3721
+		// 1940 is default
+		var circle_1940 = timeline.append("circle").attr("r", 15).attr("cx", 22).attr("cy", 20).style("stroke", "#ef9928").style("stroke-width", 3).style("fill", "#185dd1")
+				.on("click", function(){
+					csv_name = "election-results-1940.csv";
+					president_portrait = "1940.jpg";
+					updateTimeline("1940");
+					updateDisplay();
+				});
+		
+		var circle_1944 = timeline.append("circle").attr("r", 10).attr("cx", 22 + 1*60).attr("cy", 20).style("fill", "#185dd1")
+				.on("click", function(){
+					csv_name = "election-results-1944.csv";
+					president_portrait = "1944.jpg";
+					updateTimeline("1944");
+					updateDisplay();
+				});
+
+		var circle_1948 = timeline.append("circle").attr("r", 10).attr("cx", 22 + 2*60).attr("cy", 20).style("fill", "#185dd1")
+				.on("click", function(){
+					csv_name = "election-results-1948.csv";
+					president_portrait = "1948.jpg";
+					updateTimeline("1948");
+					updateDisplay();
+				});
+
+		var circle_1952 = timeline.append("circle").attr("r", 10).attr("cx", 22 + 3*60).attr("cy", 20).style("fill", "#ce3721")
+				.on("click", function(){
+					csv_name = "election-results-1952.csv";
+					president_portrait = "1952.jpg";
+					updateTimeline("1952");
+					updateDisplay();
+				});
+
+		var circle_1956 = timeline.append("circle").attr("r", 10).attr("cx", 22 + 4*60).attr("cy", 20).style("fill", "#ce3721")
+				.on("click", function(){
+					csv_name = "election-results-1956.csv";
+					president_portrait = "1956.jpg";
+					updateTimeline("1956");
+					updateDisplay();
+				});
+
+		var circle_1960 = timeline.append("circle").attr("r", 10).attr("cx", 22 + 5*60).attr("cy", 20).style("fill", "#185dd1")
+				.on("click", function(){
+					csv_name = "election-results-1960.csv";
+					president_portrait = "1960.jpg";
+					updateTimeline("1960");
+					updateDisplay();
+				});
+
+		var circle_1964 = timeline.append("circle").attr("r", 10).attr("cx", 22 + 6*60).attr("cy", 20).style("fill", "#185dd1")
+				.on("click", function(){
+					csv_name = "election-results-1964.csv";
+					president_portrait = "1964.jpg";
+					updateTimeline("1964");
+					updateDisplay();
+				});
+
+		var circle_1968 = timeline.append("circle").attr("r", 10).attr("cx", 22 + 7*60).attr("cy", 20).style("fill", "#ce3721")
+				.on("click", function(){
+					csv_name = "election-results-1968.csv";
+					president_portrait = "1968.jpg";
+					updateTimeline("1968");
+					updateDisplay();
+				});
+
+		var circle_1972 = timeline.append("circle").attr("r", 10).attr("cx", 22 + 8*60).attr("cy", 20).style("fill", "#ce3721")
+				.on("click", function(){
+					csv_name = "election-results-1972.csv";
+					president_portrait = "1972.jpg";
+					updateTimeline("1972");
+					updateDisplay();
+				});
+
+		var circle_1976 = timeline.append("circle").attr("r", 10).attr("cx", 22 + 9*60).attr("cy", 20).style("fill", "#185dd1")
+				.on("click", function(){
+					csv_name = "election-results-1976.csv";
+					president_portrait = "1976.jpg";
+					updateTimeline("1976");
+					updateDisplay();
+				});
+
+		var circle_1980 = timeline.append("circle").attr("r", 10).attr("cx", 22 + 10*60).attr("cy", 20).style("fill", "#ce3721")
+				.on("click", function(){
+					csv_name = "election-results-1980.csv";
+					president_portrait = "1980.jpg";
+					updateTimeline("1980");
+					updateDisplay();
+				});
+
+		var circle_1984 = timeline.append("circle").attr("r", 10).attr("cx", 22 + 11*60).attr("cy", 20).style("fill", "#ce3721")
+				.on("click", function(){
+					csv_name = "election-results-1984.csv";
+					president_portrait = "1984.jpg";
+					updateTimeline("1984");
+					updateDisplay();
+				});
+
+		var circle_1988 = timeline.append("circle").attr("r", 10).attr("cx", 22 + 12*60).attr("cy", 20).style("fill", "#ce3721")
+				.on("click", function(){
+					csv_name = "election-results-1988.csv";
+					president_portrait = "1988.jpg";
+					updateTimeline("1988");
+					updateDisplay();
+				});
+
+		var circle_1992 = timeline.append("circle").attr("r", 10).attr("cx", 22 + 13*60).attr("cy", 20).style("fill", "#185dd1")
+				.on("click", function(){
+					csv_name = "election-results-1992.csv";
+					president_portrait = "1992.jpg";
+					updateTimeline("1992");
+					updateDisplay();
+				});
+
+		var circle_1996 = timeline.append("circle").attr("r", 10).attr("cx", 22 + 14*60).attr("cy", 20).style("fill", "#185dd1")
+				.on("click", function(){
+					csv_name = "election-results-1996.csv";
+					president_portrait = "1996.jpg";
+					updateTimeline("1996");
+					updateDisplay();
+				});
+
+		var circle_2000 = timeline.append("circle").attr("r", 10).attr("cx", 22 + 15*60).attr("cy", 20).style("fill", "#ce3721")
+				.on("click", function(){
+					csv_name = "election-results-2000.csv";
+					president_portrait = "2000.jpg";
+					updateTimeline("2000");
+					updateDisplay();
+				});
+
+		var circle_2004 = timeline.append("circle").attr("r", 10).attr("cx", 22 + 16*60).attr("cy", 20).style("fill", "#ce3721")
+				.on("click", function(){
+					csv_name = "election-results-2004.csv";
+					president_portrait = "2004.jpg";
+					updateTimeline("2004");
+					updateDisplay();
+				});
+
+		var circle_2008 = timeline.append("circle").attr("r", 10).attr("cx", 22 + 17*60).attr("cy", 20).style("fill", "#185dd1")
+				.on("click", function(){
+					csv_name = "election-results-2008.csv";
+					president_portrait = "2008.jpg";
+					updateTimeline("2008");
+					updateDisplay();
+				});
+
+		var circle_2012 = timeline.append("circle").attr("r", 10).attr("cx", 22 + 18*60).attr("cy", 20).style("fill", "#185dd1")
+				.on("click", function(){
+					csv_name = "election-results-2012.csv";
+					president_portrait = "2012.jpg";
+					updateTimeline("2012");
+					updateDisplay();
+				});
+
+		var circle_2016 = timeline.append("circle").attr("r", 10).attr("cx", 22 + 19*60).attr("cy", 20).style("fill", "#ce3721")
+				.on("click", function(){
+					csv_name = "election-results-2016.csv";
+					president_portrait = "2016.jpg";
+					updateTimeline("2016");
+					updateDisplay();
+				});
+
+		var text_y = 50;
+
+		timeline.append("text").attr("x", 22).attr("y", text_y).style("text-align", "center")
+			.style("text-anchor", "middle").style("font-family", "Arial").text("1940");
+		timeline.append("text").attr("x", 22 + 1*60).attr("y", text_y).style("text-align", "center")
+			.style("text-anchor", "middle").style("font-family", "Arial").text("1944");
+		timeline.append("text").attr("x", 22 + 2*60).attr("y", text_y).style("text-align", "center")
+			.style("text-anchor", "middle").style("font-family", "Arial").text("1948");
+		timeline.append("text").attr("x", 22 + 3*60).attr("y", text_y).style("text-align", "center")
+			.style("text-anchor", "middle").style("font-family", "Arial").text("1952");
+		timeline.append("text").attr("x", 22 + 4*60).attr("y", text_y).style("text-align", "center")
+			.style("text-anchor", "middle").style("font-family", "Arial").text("1956");
+		timeline.append("text").attr("x", 22 + 5*60).attr("y", text_y).style("text-align", "center")
+			.style("text-anchor", "middle").style("font-family", "Arial").text("1960");
+		timeline.append("text").attr("x", 22 + 6*60).attr("y", text_y).style("text-align", "center")
+			.style("text-anchor", "middle").style("font-family", "Arial").text("1964");
+		timeline.append("text").attr("x", 22 + 7*60).attr("y", text_y).style("text-align", "center")
+			.style("text-anchor", "middle").style("font-family", "Arial").text("1968");
+		timeline.append("text").attr("x", 22 + 8*60).attr("y", text_y).style("text-align", "center")
+			.style("text-anchor", "middle").style("font-family", "Arial").text("1972");
+		timeline.append("text").attr("x", 22 + 9*60).attr("y", text_y).style("text-align", "center")
+			.style("text-anchor", "middle").style("font-family", "Arial").text("1976");
+		timeline.append("text").attr("x", 22 + 10*60).attr("y", text_y).style("text-align", "center")
+			.style("text-anchor", "middle").style("font-family", "Arial").text("1980");
+		timeline.append("text").attr("x", 22 + 11*60).attr("y", text_y).style("text-align", "center")
+			.style("text-anchor", "middle").style("font-family", "Arial").text("1984");
+		timeline.append("text").attr("x", 22 + 12*60).attr("y", text_y).style("text-align", "center")
+			.style("text-anchor", "middle").style("font-family", "Arial").text("1988");
+		timeline.append("text").attr("x", 22 + 13*60).attr("y", text_y).style("text-align", "center")
+			.style("text-anchor", "middle").style("font-family", "Arial").text("1992");
+		timeline.append("text").attr("x", 22 + 14*60).attr("y", text_y).style("text-align", "center")
+			.style("text-anchor", "middle").style("font-family", "Arial").text("1996");
+		timeline.append("text").attr("x", 22 + 15*60).attr("y", text_y).style("text-align", "center")
+			.style("text-anchor", "middle").style("font-family", "Arial").text("2000");
+		timeline.append("text").attr("x", 22 + 16*60).attr("y", text_y).style("text-align", "center")
+			.style("text-anchor", "middle").style("font-family", "Arial").text("2004");
+		timeline.append("text").attr("x", 22 + 17*60).attr("y", text_y).style("text-align", "center")
+			.style("text-anchor", "middle").style("font-family", "Arial").text("2008");
+		timeline.append("text").attr("x", 22 + 18*60).attr("y", text_y).style("text-align", "center")
+			.style("text-anchor", "middle").style("font-family", "Arial").text("2012");
+		timeline.append("text").attr("x", 22 + 19*60).attr("y", text_y).style("text-align", "center")
+			.style("text-anchor", "middle").style("font-family", "Arial").text("2016");
+
+		//########## main svg ##########
+		var main_svg = d3.select("body").append("div").attr("width", width).attr("height", height);
+		var color_coding = main_svg.append("svg").attr("id", "color_coding").attr("width", width_map).attr("height", 50);
+		var image_area = main_svg.append("svg").attr("id", "image_area").attr("width", 250).attr("height", 570);
+		var map = main_svg.append("svg").attr("id", "map").attr("width", width_map).attr("height", height-50);
+		displayMap();
+
+		//########## Color-coding ##########
+		//(Blue: D_Nominee)-60 to -50 (#172771); -50 to -40(#0221a3); -40 to -30(#0d3cfd); -30 to -20(#4065fd); -20 to -10(#8396fe); -10 to 0(#c6d1fe)
+		//(Red: R_Nominee) 0 to 10(#fbd6d2); 10 to 20(#ec978b); 20 to 30(#e5705f); 30 to 40(#e15641); 40 to 50(#bf331f); 50 to 60(762013);
+		
+		//###### D_Nominee
+		var color1 = color_coding.append("rect").attr("x", 32).attr("y", 10).attr("rx", 2).attr("ry", 2).attr("width", 72).attr("height", 10).style("fill", "#172771");
+		var color2 = color_coding.append("rect").attr("x", 32 + 74).attr("y", 10).attr("rx", 2).attr("ry", 2).attr("width", 72).attr("height", 10).style("fill", "#0221a3");
+		var color3 = color_coding.append("rect").attr("x", 32 + 2*74).attr("y", 10).attr("rx", 2).attr("ry", 2).attr("width", 72).attr("height", 10).style("fill", "#0d3cfd");
+		var color4 = color_coding.append("rect").attr("x", 32 + 3*74).attr("y", 10).attr("rx", 2).attr("ry", 2).attr("width", 72).attr("height", 10).style("fill", "#4065fd");
+		var color5 = color_coding.append("rect").attr("x", 32 + 4*74).attr("y", 10).attr("rx", 2).attr("ry", 2).attr("width", 72).attr("height", 10).style("fill", "#8396fe");
+		var color6 = color_coding.append("rect").attr("x", 32 + 5*74).attr("y", 10).attr("rx", 2).attr("ry", 2).attr("width", 72).attr("height", 10).style("fill", "#c6d1fe");
+
+		//###### R_Nominee
+		var color7 = color_coding.append("rect").attr("x", 32 + 6*74).attr("y", 10).attr("rx", 2).attr("ry", 2).attr("width", 72).attr("height", 10).style("fill", "#fbd6d2");
+		var color8 = color_coding.append("rect").attr("x", 32 + 7*74).attr("y", 10).attr("rx", 2).attr("ry", 2).attr("width", 72).attr("height", 10).style("fill", "#ec978b");
+		var color9 = color_coding.append("rect").attr("x", 32 + 8*74).attr("y", 10).attr("rx", 2).attr("ry", 2).attr("width", 72).attr("height", 10).style("fill", "#e5705f");
+		var color10 = color_coding.append("rect").attr("x", 32 + 9*74).attr("y", 10).attr("rx", 2).attr("ry", 2).attr("width", 72).attr("height", 10).style("fill", "#e15641");
+		var color11 = color_coding.append("rect").attr("x", 32 + 10*74).attr("y", 10).attr("rx", 2).attr("ry", 2).attr("width", 72).attr("height", 10).style("fill", "#bf331f");
+		var color12 = color_coding.append("rect").attr("x", 32 + 11*74).attr("y", 10).attr("rx", 2).attr("ry", 2).attr("width", 72).attr("height", 10).style("fill", "#762013");
+
+		//###### text
+		color_coding.append("text").attr("x", 63).attr("y", 34).attr("font-size", 12).style("text-align", "center").style("text-anchor", "middle").style("font-family", "Helvetica").text("-60 to -50");
+		color_coding.append("text").attr("x", 63 + 74).attr("y", 34).attr("font-size", 12).style("text-align", "center").style("text-anchor", "middle").style("font-family", "Helvetica").text("-50 to -40");
+		color_coding.append("text").attr("x", 63 + 2*74).attr("y", 34).attr("font-size", 12).style("text-align", "center").style("text-anchor", "middle").style("font-family", "Helvetica").text("-40 to -30");
+		color_coding.append("text").attr("x", 63 + 3*74).attr("y", 34).attr("font-size", 12).style("text-align", "center").style("text-anchor", "middle").style("font-family", "Helvetica").text("-30 to -20");
+		color_coding.append("text").attr("x", 63 + 4*74).attr("y", 34).attr("font-size", 12).style("text-align", "center").style("text-anchor", "middle").style("font-family", "Helvetica").text("-20 to -10");
+		color_coding.append("text").attr("x", 63 + 5*74).attr("y", 34).attr("font-size", 12).style("text-align", "center").style("text-anchor", "middle").style("font-family", "Helvetica").text("-10 to 0");
+		color_coding.append("text").attr("x", 63 + 6*74).attr("y", 34).attr("font-size", 12).style("text-align", "center").style("text-anchor", "middle").style("font-family", "Helvetica").text("0 to 10");
+		color_coding.append("text").attr("x", 63 + 7*74).attr("y", 34).attr("font-size", 12).style("text-align", "center").style("text-anchor", "middle").style("font-family", "Helvetica").text("10 to 20");
+		color_coding.append("text").attr("x", 63 + 8*74).attr("y", 34).attr("font-size", 12).style("text-align", "center").style("text-anchor", "middle").style("font-family", "Helvetica").text("20 to 30");
+		color_coding.append("text").attr("x", 63 + 9*74).attr("y", 34).attr("font-size", 12).style("text-align", "center").style("text-anchor", "middle").style("font-family", "Helvetica").text("30 to 40");
+		color_coding.append("text").attr("x", 63 + 10*74).attr("y", 34).attr("font-size", 12).style("text-align", "center").style("text-anchor", "middle").style("font-family", "Helvetica").text("40 to 50");
+		color_coding.append("text").attr("x", 63 + 11*74).attr("y", 34).attr("font-size", 12).style("text-align", "center").style("text-anchor", "middle").style("font-family", "Helvetica").text("50 to 60");
+
+		//########## Image ##########
+		var image = image_area.append("svg:image").attr("id", "image").attr('x', 25).attr('y', 125).attr('width', 200).attr('height', 350).attr("xlink:href", "images/" + president_portrait);
+
+		function updateTimeline(year){
+			//refresh all the circles to default setting
+			circle_1940.attr("r", 10).style("stroke", "none");
+			circle_1944.attr("r", 10).style("stroke", "none");
+			circle_1948.attr("r", 10).style("stroke", "none");
+			circle_1952.attr("r", 10).style("stroke", "none");
+			circle_1956.attr("r", 10).style("stroke", "none");
+			circle_1960.attr("r", 10).style("stroke", "none");
+			circle_1964.attr("r", 10).style("stroke", "none");
+			circle_1968.attr("r", 10).style("stroke", "none");
+			circle_1972.attr("r", 10).style("stroke", "none");
+			circle_1976.attr("r", 10).style("stroke", "none");
+			circle_1980.attr("r", 10).style("stroke", "none");
+			circle_1984.attr("r", 10).style("stroke", "none");
+			circle_1988.attr("r", 10).style("stroke", "none");
+			circle_1992.attr("r", 10).style("stroke", "none");
+			circle_1996.attr("r", 10).style("stroke", "none");
+			circle_2000.attr("r", 10).style("stroke", "none");
+			circle_2004.attr("r", 10).style("stroke", "none");
+			circle_2008.attr("r", 10).style("stroke", "none");
+			circle_2012.attr("r", 10).style("stroke", "none");
+			circle_2016.attr("r", 10).style("stroke", "none");
+
+			//judge which circle is pressed based year
+			switch(year){
+				case "1940":
+					circle_1940.attr("r", 15).style("stroke", "#ef9928").style("stroke-width", 5);
+					break;
+				case "1944":
+					circle_1944.attr("r", 15).style("stroke", "#ef9928").style("stroke-width", 5);
+					break;
+				case "1948":
+					circle_1948.attr("r", 15).style("stroke", "#ef9928").style("stroke-width", 5);
+					break;
+				case "1952":
+					circle_1952.attr("r", 15).style("stroke", "#ef9928").style("stroke-width", 5);
+					break;
+				case "1956":
+					circle_1956.attr("r", 15).style("stroke", "#ef9928").style("stroke-width", 5);
+					break;
+				case "1960":
+					circle_1960.attr("r", 15).style("stroke", "#ef9928").style("stroke-width", 5);
+					break;
+				case "1964":
+					circle_1964.attr("r", 15).style("stroke", "#ef9928").style("stroke-width", 5);
+					break;
+				case "1968":
+					circle_1968.attr("r", 15).style("stroke", "#ef9928").style("stroke-width", 5);
+					break;
+				case "1972":
+					circle_1972.attr("r", 15).style("stroke", "#ef9928").style("stroke-width", 5);
+					break;
+				case "1976":
+					circle_1976.attr("r", 15).style("stroke", "#ef9928").style("stroke-width", 5);
+					break;
+				case "1980":
+					circle_1980.attr("r", 15).style("stroke", "#ef9928").style("stroke-width", 5);
+					break;
+				case "1984":
+					circle_1984.attr("r", 15).style("stroke", "#ef9928").style("stroke-width", 5);
+					break;
+				case "1988":
+					circle_1988.attr("r", 15).style("stroke", "#ef9928").style("stroke-width", 5);
+					break;
+				case "1992":
+					circle_1992.attr("r", 15).style("stroke", "#ef9928").style("stroke-width", 5);
+					break;
+				case "1996":
+					circle_1996.attr("r", 15).style("stroke", "#ef9928").style("stroke-width", 5);
+					break;
+				case "2000":
+					circle_2000.attr("r", 15).style("stroke", "#ef9928").style("stroke-width", 5);
+					break;
+				case "2004":
+					circle_2004.attr("r", 15).style("stroke", "#ef9928").style("stroke-width", 5);
+					break;
+				case "2008":
+					circle_2008.attr("r", 15).style("stroke", "#ef9928").style("stroke-width", 5);
+					break;
+				case "2012":
+					circle_2012.attr("r", 15).style("stroke", "#ef9928").style("stroke-width", 5);
+					break;
+				case "2016":
+					circle_2016.attr("r", 15).style("stroke", "#ef9928").style("stroke-width", 5);
+					break;
+			}
+		}
+
+		//********** The following part is Adapted from Github danzeng **********
+		//Map position lists, based on positions lists to find the right postion of a state. The map is 8 * 12
+		var map_row1 = ["Alaska", "Maine"];
+		var map_row2 = ["Vermont", "New Hampshire"];
+		var map_row3 = ["Washington", "Idaho", "Montana", "North Dakota", "Minnesota", "Illinois", "Wisconsin", "Michigan", "New York", "Rhode Island", "Massachusetts"];
+		var map_row4 = ["Oregon", "Nevada", "Wyoming", "South Dakota", "Iowa", "Indiana", "Ohio", "Pennsylvania", "New Jersey", "Connecticut"];
+		var map_row5 = ["California", "Utah", "Colorado", "Nebraska", "Missouri", "Kentucky", "West Virginia", "Virginia", "Maryland", "Dist. of Col.", "Washington, D.C."];
+		var map_row6 = ["Arizona", "New Mexico", "Kansas", "Arkansas", "Tennessee", "North Carolina", "South Carolina", "Delaware"];
+		var map_row7 = ["Oklahoma", "Louisiana", "Mississippi", "Alabama", "Georgia"];
+		var map_row8 = ["Hawaii", "Florida", "Texas"];
+		
+		var map_column1 = ["Alaska"];
+		var map_column2 = ["Washington", "Oregon", "California", "Hawaii"];
+		var map_column3 = ["Idaho", "Nevada", "Utah", "Arizona"];
+		var map_column4 = ["Montana", "Wyoming", "Colorado", "New Mexico"];
+		var map_column5 = ["North Dakota", "South Dakota", "Nebraska", "Kansas", "Oklahoma", "Texas"];
+		var map_column6 = ["Minnesota", "Iowa", "Missouri", "Arkansas", "Louisiana"];
+		var map_column7 = ["Illinois", "Indiana", "Kentucky", "Tennessee", "Mississippi"];
+		var map_column8 = ["Wisconsin", "Ohio", "West Virginia", "North Carolina", "Alabama"];
+		var map_column9 = ["Michigan", "Pennsylvania", "Virginia", "South Carolina", "Georgia"];
+		var map_column10 = ["New York", "New Jersey", "Maryland", "Delaware", "Florida"];
+		var map_column11 = ["Vermont", "Rhode Island", "Connecticut", "Washington, D.C.", "Dist. of Col."];
+		var map_column12 = ["Maine", "New Hampshire", "Massachusetts"];
+
+		var state_scale_col = d3.scaleLinear().range([0, width_map]).domain([0, 13]); 	// from 1 to 12 cols 
+		var state_scale_row = d3.scaleLinear().range([0, height-80]).domain([0, 9]);	// from 1 to 8 cols
+
+		// get x position of state in the matrix map
+		var state_posX = function(state){
+			if(map_column1.includes(state)){
+				return state_scale_col(1);
+			}
+			if(map_column2.includes(state)){
+				return state_scale_col(2);
+			}
+			if(map_column3.includes(state)){
+				return state_scale_col(3);
+			}
+			if(map_column4.includes(state)){
+				return state_scale_col(4);
+			}
+			if(map_column5.includes(state)){
+				return state_scale_col(5);
+			}
+			if(map_column6.includes(state)){
+				return state_scale_col(6);
+			}
+			if(map_column7.includes(state)){
+				return state_scale_col(7);
+			}
+			if(map_column8.includes(state)){
+				return state_scale_col(8);
+			}
+			if(map_column9.includes(state)){
+				return state_scale_col(9);
+			}
+			if(map_column10.includes(state)){
+				return state_scale_col(10);
+			}
+			if(map_column11.includes(state)){
+				return state_scale_col(11);
+			}
+			if(map_column12.includes(state)){
+				return state_scale_col(12);
+			}
+			console.log(state);
+			return -100;
+		}
+		// get y position of state in the matrix map
+		var state_posY = function(state){
+			if(map_row1.includes(state)){
+				return state_scale_row(1);
+			}
+			if(map_row2.includes(state)){
+				return state_scale_row(2);
+			}
+			if(map_row3.includes(state)){
+				return state_scale_row(3);
+			}
+			if(map_row4.includes(state)){
+				return state_scale_row(4);
+			}
+			if(map_row5.includes(state)){
+				return state_scale_row(5);
+			}
+			if(map_row6.includes(state)){
+				return state_scale_row(6);
+			}
+			if(map_row7.includes(state)){
+				return state_scale_row(7);
+			}
+			if(map_row8.includes(state)){
+				return state_scale_row(8);
+			}
+			console.log(state);
+			return -100;
+		}
+
+		//create hover tooltip 
+		var hoverTool = d3.select("body").append("div").attr("class", "tooltip").style("opacity", 0);
+
+		//display the electoral map  blue: #185dd1 red: #ce3721
+		function displayMap(){
+			map.remove();
+			map = main_svg.append("svg").attr("id", "map").attr("width", width_map).attr("height", height-80);
+
+			d3.csv("data/" + csv_name, function(error, data) {
+  				if (error) throw error;
+
+  				map.selectAll("rect").data(data).enter().append("rect")
+  				.attr("x", function(d){
+  					return state_posX(d.State);
+  				})
+  				.attr("y", function(d){
+  					return state_posY(d.State);
+  				})
+  				.attr("width", 70).attr("height", 56).style("fill", function(d){
+  					return getColor(d.D_Percentage, d.R_Percentage);
+  				})
+  				.on("mouseover", function(d){
+  					hoverTool.transition().duration(500).style("opacity", .9);
+  					
+  					if(+d.D_Percentage > +d.R_Percentage){
+  						hoverTool.html(
+  							"<h3 style=\"color:#185dd1; text-align:left;\">" + d.State + "</h3>" +
+  							"<h4 style=\"text-align:left;\"> Electoral Votes: " + d.Total_EV + "</h4>" +
+  							"<ul style=\"font-size: 75%;\"><li style=\"color:#185dd1; font-size:8; text-align:left;\">" + d.D_Nominee + ": " + d.D_Votes + "(" + d.D_Percentage + "%)</li>" +
+  							"<li style=\"color:#ce3721; font-size:8; text-align:left;\">" + d.R_Nominee + ": " + d.R_Votes + "(" + d.R_Percentage + "%)</li></ul>"
+  						)
+  						.style("left", (d3.event.pageX + 10) + "px")
+                    	.style("top", (d3.event.pageY - 180) + "px");
+
+  						// color = "#185dd1";
+  					}else{
+  						hoverTool.html(
+  							"<h3 style=\"color:#ce3721; text-align:left;\">" + d.State + "</h3>" +
+  							"<h4 style=\"text-align:left;\"> Electoral Votes: " + d.Total_EV + "</h4>" +
+  							"<ul style=\"font-size: 75%;\"><li style=\"color:#185dd1; text-align:left;\">" + d.D_Nominee + ": " + d.D_Votes + "(" + d.D_Percentage + "%)</li>" +
+  							"<li style=\"color:#ce3721; text-align:left;\">" + d.R_Nominee + ": " + d.R_Votes + "(" + d.R_Percentage + "%)</li></ul>"
+  						)
+  						.style("left", (d3.event.pageX + 10) + "px")
+                    	.style("top", (d3.event.pageY - 180) + "px");
+  					}
+  				})
+  				.on("mouseout", function(d){
+  					hoverTool.transition().duration(500).style("opacity", 0);
+  				});
+
+  				// map.selectAll("text").data(data).enter().append("text")
+  				// .attr("x", function(d){
+  				// 	return state_posX(d.State) + 35;
+  				// })
+  				// .attr("y", function(d){
+  				// 	return state_posY(d.State) + 20;
+  				// })
+  				// .text(function(d){ return d.Abbreviation + " " + d.Total_EV;}).style("text-align", "center").style("text-anchor", "middle")
+  				// .style("fill", "#a3a3b6");
+
+  				
+
+  				var text = map.selectAll("text").data(data).enter().append("text")
+  				.attr("x", function(d){
+  					return state_posX(d.State) + 35;
+  				})
+  				.attr("y", function(d){
+  					return state_posY(d.State) + 20;
+  				}).style("text-align", "center").style("text-anchor", "middle").style("fill", "#a3a3b6")
+  				.append("tspan").text(function(d){ return d.Abbreviation;})
+  				.attr("x", function(d){
+  					return state_posX(d.State) + 35;
+  				})
+  				.attr("y", function(d){
+  					return state_posY(d.State) + 20;
+  				}).on("mouseover", function(d){
+  					hoverTool.transition().duration(500).style("opacity", .9);
+  					
+  					if(+d.D_Percentage > +d.R_Percentage){
+  						hoverTool.html(
+  							"<h3 style=\"color:#185dd1; text-align:left;\">" + d.State + "</h3>" +
+  							"<h4 style=\"text-align:left;\"> Electoral Votes: " + d.Total_EV + "</h4>" +
+  							"<ul style=\"font-size: 75%;\"><li style=\"color:#185dd1; font-size:8; text-align:left;\">" + d.D_Nominee + ": " + d.D_Votes + "(" + d.D_Percentage + "%)</li>" +
+  							"<li style=\"color:#ce3721; font-size:8; text-align:left;\">" + d.R_Nominee + ": " + d.R_Votes + "(" + d.R_Percentage + "%)</li></ul>"
+  						)
+  						.style("left", (d3.event.pageX + 10) + "px")
+                    	.style("top", (d3.event.pageY - 180) + "px");
+
+  						// color = "#185dd1";
+  					}else{
+  						hoverTool.html(
+  							"<h3 style=\"color:#ce3721; text-align:left;\">" + d.State + "</h3>" +
+  							"<h4 style=\"text-align:left;\"> Electoral Votes: " + d.Total_EV + "</h4>" +
+  							"<ul style=\"font-size: 75%;\"><li style=\"color:#185dd1; text-align:left;\">" + d.D_Nominee + ": " + d.D_Votes + "(" + d.D_Percentage + "%)</li>" +
+  							"<li style=\"color:#ce3721; text-align:left;\">" + d.R_Nominee + ": " + d.R_Votes + "(" + d.R_Percentage + "%)</li></ul>"
+  						)
+  						.style("left", (d3.event.pageX + 10) + "px")
+                    	.style("top", (d3.event.pageY - 180) + "px");
+  					}
+  				})
+  				.on("mouseout", function(d){
+  					hoverTool.transition().duration(500).style("opacity", 0);
+  				})
+  				.append("tspan").text(function(d){ return d.Total_EV;})
+  				.attr("x", function(d){
+  					return state_posX(d.State) + 35;
+  				})
+  				.attr("y", function(d){
+  					return state_posY(d.State) + 40;
+  				}).on("mouseover", function(d){
+  					hoverTool.transition().duration(500).style("opacity", .9);
+  					
+  					if(+d.D_Percentage > +d.R_Percentage){
+  						hoverTool.html(
+  							"<h3 style=\"color:#185dd1; text-align:left;\">" + d.State + "</h3>" +
+  							"<h4 style=\"text-align:left;\"> Electoral Votes: " + d.Total_EV + "</h4>" +
+  							"<ul style=\"font-size: 75%;\"><li style=\"color:#185dd1; font-size:8; text-align:left;\">" + d.D_Nominee + ": " + d.D_Votes + "(" + d.D_Percentage + "%)</li>" +
+  							"<li style=\"color:#ce3721; font-size:8; text-align:left;\">" + d.R_Nominee + ": " + d.R_Votes + "(" + d.R_Percentage + "%)</li></ul>"
+  						)
+  						.style("left", (d3.event.pageX + 10) + "px")
+                    	.style("top", (d3.event.pageY - 180) + "px");
+
+  						// color = "#185dd1";
+  					}else{
+  						hoverTool.html(
+  							"<h3 style=\"color:#ce3721; text-align:left;\">" + d.State + "</h3>" +
+  							"<h4 style=\"text-align:left;\"> Electoral Votes: " + d.Total_EV + "</h4>" +
+  							"<ul style=\"font-size: 75%;\"><li style=\"color:#185dd1; text-align:left;\">" + d.D_Nominee + ": " + d.D_Votes + "(" + d.D_Percentage + "%)</li>" +
+  							"<li style=\"color:#ce3721; text-align:left;\">" + d.R_Nominee + ": " + d.R_Votes + "(" + d.R_Percentage + "%)</li></ul>"
+  						)
+  						.style("left", (d3.event.pageX + 10) + "px")
+                    	.style("top", (d3.event.pageY - 180) + "px");
+  					}
+  				})
+  				.on("mouseout", function(d){
+  					hoverTool.transition().duration(500).style("opacity", 0);
+  				});;
+
+  			});
+		}
+
+
+		//########## Color-coding ##########
+		//(Blue: D_Nominee)-60 to -50 (#172771); -50 to -40(#0221a3); -40 to -30(#0d3cfd); -30 to -20(#4065fd); -20 to -10(#8396fe); -10 to 0(#c6d1fe)
+		//(Red: R_Nominee) 0 to 10(#fbd6d2); 10 to 20(#ec978b); 20 to 30(#e5705f); 30 to 40(#e15641); 40 to 50(#bf331f); 50 to 60(#762013);
+		function getColor(D_percentage, R_percentage){
+			var result = R_percentage - D_percentage;
+			if(result >= -60 && result < -50){
+				return "#172771";
+			}else if(result >= -50 && result < -40){
+				return "#0221a3";
+			}else if(result >= -40 && result < -30){
+				return "#0d3cfd";
+			}else if(result >= -30 && result < -20){
+				return "#4065fd";
+			}else if(result >= -20 && result < -10){
+				return "#8396fe";
+			}else if(result >= -10 && result < 0){
+				return "#c6d1fe";
+			}else if(result >= 0 && result < 10){
+				return "#fbd6d2";
+			}else if(result >= 10 && result < 20){
+				return "#ec978b";
+			}else if(result >= 20 && result < 30){
+				return "#e5705f";
+			}else if(result >= 30 && result < 40){
+				return "#e15641";
+			}else if(result >= 40 && result < 50){
+				return "#bf331f";
+			}else{ //>= -10 < 0
+				return "#762013";
+			}
+		}
+
+		//when user select different year, update the display of map and image
+		function updateDisplay() {
+			image.attr("xlink:href", "images/" + president_portrait);
+			displayMap();
+		}
+
+	</script>
+</body>
+</html>

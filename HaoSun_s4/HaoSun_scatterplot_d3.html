@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>D3 Test</title>
+        <script src="https://d3js.org/d3.v4.js"></script>
+
+        <style type="text/css">
+            /*for displaying information at the location of mouse*/
+            .tooltip {  
+            position: absolute;
+            width: 200px;
+            height: 28px;
+            pointer-events: none;
+        }
+        </style>
+    </head>
+    <body>
+        <script type="text/javascript">
+
+            //d3 code here!
+
+            //set the scale of graph
+            var margin = {top: 20, right: 20, bottom: 30, left: 40},
+                width = 960 - margin.left - margin.right,
+                height = 500 - margin.top - margin.bottom;
+            var svgWidth = width + margin.left + margin.right;
+            var svgHeight = height + margin.top + margin.bottom;
+
+            // setup x 
+            var xValue = function(d) { return d.sleep;}, //get x value
+                xScale = d3.scaleLinear().range([0, width]), // Scale the data elements
+                xMap = function(d) { return xScale(xValue(d));}, // display value
+                xAxis = d3.axisBottom(xScale);
+
+            // setup y
+            var yValue = function(d) { return d.score;}, // data -> value
+                yScale = d3.scaleLinear().range([height, 0]), //Scale the data elements
+                yMap = function(d) { return yScale(yValue(d));}, // display value in the graph
+                yAxis = d3.axisLeft(yScale);
+
+            //setup color for sex
+            var cValue = function(d) {return d.sex;};
+            var color = d3.scaleOrdinal(d3.schemeCategory10);
+
+            //append the svg object to the body of the page, append a 'group' element to 'svg'
+            //moves the 'group' element to the top left margin
+            var svg = d3.select("body").append("svg")
+                .attr("width", svgWidth)
+                .attr("height", svgHeight)
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            // add the tooltip area to the webpage
+            var tooltip = d3.select("body").append("div")
+                .attr("class", "tooltip")
+                .style("opacity", 0);
+
+            //load data
+            d3.csv("scatterplot-data.csv", function(error, data) {
+                if(error) throw error;
+
+                //get data one by one
+                data.forEach(function(d) {
+                    d.sleep = +d.sleep;
+                    d.score = +d.score;
+                    d.sex = d.sex;
+                });
+
+                //scale the range of data
+                xScale.domain([0, d3.max(data, function(d) {return d.sleep;})]);
+                yScale.domain([0, d3.max(data, function(d) {return d.score;})]);
+
+                // x-axis
+                svg.append("g")
+                    .attr("class", "x axis")
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(xAxis)
+                    .append("text")
+                    .attr("class", "label")
+                    .attr("x", width)
+                    .attr("y", -6)
+                    .style("text-anchor", "end")
+                    .text("Sleep");
+
+                // y-axis
+                svg.append("g")
+                        .attr("class", "y axis")
+                        .call(yAxis)
+                    .append("text")
+                        .attr("class", "label")
+                        .attr("transform", "rotate(-90)")
+                        .attr("y", 6)
+                        .attr("dy", ".71em")
+                        .style("text-anchor", "end")
+                        .text("Score");
+    
+
+                // draw dots
+                svg.selectAll(".dot")
+                    .data(data)
+                    .enter().append("circle")
+                    .attr("class", "dot")
+                    .attr("r", 4)
+                    .attr("cx", xMap)  // value in x axis
+                    .attr("cy", yMap)
+                    .style("fill", function(d) { return color(cValue(d));}) 
+                    .on("mouseover", function(d) {
+                        tooltip.transition()
+                            .duration(200)
+                            .style("opacity", .9);
+                        tooltip.html(d.sex + " (" + xValue(d) 
+                        + ", " + yValue(d) + ")")
+                            .style("left", (d3.event.pageX + 5) + "px")
+                            .style("top", (d3.event.pageY - 28) + "px");
+                    })
+                    .on("mouseout", function(d) {
+                        tooltip.transition()
+                            .duration(500)
+                            .style("opacity", 0);
+                    });
+            });
+        </script>
+    </body>
+</html>
